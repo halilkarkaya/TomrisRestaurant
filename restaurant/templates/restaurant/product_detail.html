@@ -1,35 +1,17 @@
+{% extends "restaurant/base.html" %}
 {% load static %}
-<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{ product.name }} — {{ product.description|default:'Tomris Restoran menüsü' }}">
-  <meta name="theme-color" content="#080706">
-  <title>{{ product.name }} | {{ site.brand_name }} {{ site.brand_type }}</title>
 
-  <link rel="icon" href="{% static 'restaurant/images/favicon.svg' %}" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;600&amp;family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'restaurant/css/styles.css' %}">
-  <script src="{% static 'restaurant/js/main.js' %}" defer></script>
-</head>
-<body class="product-detail-page">
-  <a class="skip-link" href="#icerik">İçeriğe geç</a>
+{% block meta_description %}{{ product.name }} — {{ product.description|default:'Tomris Restoran menüsü' }}{% endblock %}
+{% block title %}{{ product.name }} | {{ site.brand_name }} {{ site.brand_type }}{% endblock %}
+{% block body_class %}product-detail-page{% endblock %}
+{% block header_class %} is-scrolled{% endblock %}
+{% block brand_href %}{% url 'restaurant:home' %}{% endblock %}
 
-  <header class="site-header is-scrolled" data-header>
-    <div class="site-header__inner">
-      <a class="brand" href="{% url 'restaurant:home' %}" aria-label="Tomris Restoran ana sayfa">
-        <span class="brand__name">{{ site.brand_name }}</span>
-        <span class="brand__type">{{ site.brand_type }}</span>
-      </a>
-
+{% block header_nav %}
       <a class="detail-header__back" href="{% url 'restaurant:home' %}#menu">Menüye dön <span aria-hidden="true">↙</span></a>
-    </div>
-  </header>
+{% endblock %}
 
-  <main id="icerik" tabindex="-1">
+{% block content %}
     <section class="product-detail" aria-labelledby="product-title">
       <div class="section-shell">
         <nav class="product-detail__breadcrumb" aria-label="Sayfa yolu">
@@ -85,22 +67,12 @@
         </div>
       </div>
     </section>
-  </main>
+{% endblock %}
 
-  <footer class="site-footer">
-    <div class="section-shell site-footer__inner">
-      <a class="brand brand--footer" href="{% url 'restaurant:home' %}">
-        <span class="brand__name">{{ site.brand_name }}</span>
-        <span class="brand__type">{{ site.brand_type }}</span>
-      </a>
-      <p>{{ site.footer_text }}</p>
-      <nav aria-label="Alt navigasyon">
+{% block footer_brand_href %}{% url 'restaurant:home' %}{% endblock %}
+
+{% block footer_nav %}
         <a href="{% url 'restaurant:home' %}#hikayemiz">Hakkımızda</a>
         <a href="{% url 'restaurant:home' %}#menu">Menü</a>
         <a href="{% url 'restaurant:home' %}#iletisim">İletişim</a>
-      </nav>
-      <p class="site-footer__copyright">© <span data-year>2026</span> {{ site.brand_name }} {{ site.brand_type }}</p>
-    </div>
-  </footer>
-</body>
-</html>
+{% endblock %}

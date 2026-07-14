@@ -1,49 +1,11 @@
+{% extends "restaurant/base.html" %}
 {% load static %}
-<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{ site.brand_name }} {{ site.brand_type }} — {{ site.hero_lead }}">
-  <meta name="theme-color" content="#080706">
-  <title>{{ site.brand_name }} {{ site.brand_type }} | Türk Mutfağı</title>
 
-  <link rel="icon" href="{% static 'restaurant/images/favicon.svg' %}" type="image/svg+xml">
+{% block head_extra %}
   <link rel="preload" as="image" href="{% static 'restaurant/images/tomris-ataturk-header.png' %}" fetchpriority="high">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;600&amp;family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'restaurant/css/styles.css' %}">
-  <script src="{% static 'restaurant/js/main.js' %}" defer></script>
-</head>
-<body>
-  <a class="skip-link" href="#icerik">İçeriğe geç</a>
+{% endblock %}
 
-  <header class="site-header" data-header>
-    <div class="site-header__inner">
-      <a class="brand" href="#anasayfa" aria-label="Tomris Restoran ana sayfa">
-        <span class="brand__name">{{ site.brand_name }}</span>
-        <span class="brand__type">{{ site.brand_type }}</span>
-      </a>
-
-      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" data-menu-toggle>
-        <span class="menu-toggle__label">Menü</span>
-        <span class="menu-toggle__icon" aria-hidden="true"><i></i><i></i></span>
-      </button>
-
-      <nav class="site-nav" id="site-navigation" aria-label="Ana navigasyon" data-navigation>
-        <ul class="site-nav__list">
-          <li><a href="#anasayfa" data-nav-link>Anasayfa</a></li>
-          <li><a href="#hikayemiz" data-nav-link>Hakkımızda</a></li>
-          <li><a href="#menu" data-nav-link>Menü</a></li>
-          <li><a href="#iletisim" data-nav-link>İletişim</a></li>
-          <li><a class="site-nav__reservation" href="#iletisim">Yol tarifi</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-
-  <main id="icerik" tabindex="-1">
+{% block content %}
     <section class="hero" id="anasayfa" aria-labelledby="hero-title" data-section>
       <div class="hero__media">
         <img
@@ -203,23 +165,4 @@
         </div>
       </div>
     </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="section-shell site-footer__inner">
-      <a class="brand brand--footer" href="#anasayfa">
-        <span class="brand__name">{{ site.brand_name }}</span>
-        <span class="brand__type">{{ site.brand_type }}</span>
-      </a>
-      <p>{{ site.footer_text }}</p>
-      <nav aria-label="Alt navigasyon">
-        <a href="#hikayemiz">Hakkımızda</a>
-        <a href="#menu">Menü</a>
-        <a href="#iletisim">İletişim</a>
-        <a href="{% url 'admin:index' %}">Yönetim</a>
-      </nav>
-      <p class="site-footer__copyright">© <span data-year>2026</span> {{ site.brand_name }} {{ site.brand_type }}</p>
-    </div>
-  </footer>
-</body>
-</html>
+{% endblock %}
