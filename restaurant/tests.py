@@ -193,7 +193,18 @@ class ImageShrinkTests(TestCase):
         with Image.open(site_settings.hero_image.path) as saved:
             self.assertEqual((saved.width, saved.height), (1920, 1080))
 
+    def test_resaving_existing_product_does_not_create_duplicate_file(self):
+        product = self._create_product(self._jpeg_upload(2400, 1600))
+        stored_name = product.image.name
 
+        product.refresh_from_db()
+        product.price = Decimal("150.00")
+        product.save()
+
+        self.assertEqual(product.image.name, stored_name)
+
+
+@override_settings(MEDIA_ROOT=mkdtemp(prefix="tomris-test-media-"))
 class ProductAdminTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_superuser(

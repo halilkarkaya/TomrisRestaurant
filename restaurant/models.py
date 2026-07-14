@@ -152,7 +152,8 @@ class Product(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        shrink_uploaded_image(self.image, PRODUCT_IMAGE_MAX_WIDTH)
+        if self.image and not self.image._committed:
+            shrink_uploaded_image(self.image, PRODUCT_IMAGE_MAX_WIDTH)
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -293,7 +294,8 @@ class SiteSettings(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
-        shrink_uploaded_image(self.hero_image, HERO_IMAGE_MAX_WIDTH)
+        if self.hero_image and not self.hero_image._committed:
+            shrink_uploaded_image(self.hero_image, HERO_IMAGE_MAX_WIDTH)
         super().save(*args, **kwargs)
 
     @classmethod
