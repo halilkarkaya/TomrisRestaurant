@@ -10,7 +10,7 @@
 set -euo pipefail
 
 APP_DIR=/var/www/tomris
-REPO_URL=https://github.com/halilkarkaya/tomris.git   # <-- kendi depo adresinizle guncelleyin
+REPO_URL=https://github.com/halilkarkaya/TomrisRestaurant.git
 DOMAIN=ayse.nedenkapatilsin.com.tr
 
 echo "==> Proje klasoru"

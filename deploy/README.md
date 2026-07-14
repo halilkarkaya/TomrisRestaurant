@@ -16,21 +16,11 @@ portunu ve `tomris` servisini kullanır. Çakışma yoktur.
 
 ---
 
-## 1. Bu bilgisayarda: kodu GitHub'a yükle
+## 1. Bu bilgisayarda: kodu GitHub'a yükle ✅ (yapıldı)
 
-Depo şu an yalnızca yereldir. Yeni bir GitHub deposu oluşturup gönderin
-(`db.sqlite3` ve `.env` `.gitignore` sayesinde **gönderilmez** — veriyi 3. adımda
-`scp` ile ayrıca taşıyacağız).
-
-```powershell
-# Proje klasöründe:
-gh repo create tomris --private --source . --push
-# gh yoksa: GitHub'da boş bir "tomris" deposu açıp:
-#   git remote add origin https://github.com/<KULLANICI>/tomris.git
-#   git push -u origin main
-```
-
-> `deploy/setup.sh` içindeki `REPO_URL` değerini oluşturduğunuz deponun adresiyle güncelleyin.
+Kod şu depoya gönderildi: **https://github.com/halilkarkaya/TomrisRestaurant**
+(`db.sqlite3` ve `.env` `.gitignore` sayesinde **gönderilmedi** — veriyi 3. adımda
+`scp` ile ayrıca taşıyacağız). Sonraki güncellemeleri `git push` ile gönderin.
 
 ## 2. DNS: alt alan adını sunucuya yönlendir
 
@@ -51,7 +41,7 @@ dig +short ayse.nedenkapatilsin.com.tr
 ```bash
 # Sunucuda (root/sudo):
 sudo mkdir -p /var/www/tomris
-sudo git clone https://github.com/<KULLANICI>/tomris.git /var/www/tomris
+sudo git clone https://github.com/halilkarkaya/TomrisRestaurant.git /var/www/tomris
 ```
 
 Bu bilgisayardan **canlı veriyi** ve **görselleri** sunucuya kopyalayın
