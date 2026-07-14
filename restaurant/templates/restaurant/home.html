@@ -156,7 +156,18 @@
             <p class="contact__label">{{ site.brand_name }} {{ site.brand_type }}</p>
             <h3>{{ site.address_title }}</h3>
             <p>{{ site.address_detail }}</p>
-            <a class="button button--primary" href="{{ site.map_link }}" target="_blank" rel="noopener noreferrer">Google Haritalar'da aç</a>
+            {% if site.phone_number %}
+            <div class="location-panel__phone">
+              <span>Telefon</span>
+              <a href="{{ site.phone_href }}">{{ site.phone_number }}</a>
+            </div>
+            {% endif %}
+            <div class="location-panel__actions">
+              <a class="button button--primary" href="{{ site.map_link }}" target="_blank" rel="noopener noreferrer">Google Haritalar'da aç</a>
+              {% if site.whatsapp_number %}
+              <a class="button button--ghost" href="{{ site.whatsapp_href }}" target="_blank" rel="noopener noreferrer">WhatsApp'tan yazın</a>
+              {% endif %}
+            </div>
             <div class="location-panel__hours">
               <span>Çalışma saatleri</span>
               <strong>{{ site.opening_hours }}</strong>

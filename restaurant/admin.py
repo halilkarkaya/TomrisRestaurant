@@ -341,12 +341,20 @@ class SiteSettingsAdmin(admin.ModelAdmin):
                     "contact_kicker",
                     "contact_title",
                     "contact_text",
+                    ("phone_number", "whatsapp_number"),
                     "address_title",
                     "address_detail",
                     "opening_hours",
                     "map_link",
                     "map_embed",
                 )
+            },
+        ),
+        (
+            "Sosyal medya",
+            {
+                "description": "Doldurulan bağlantılar sitenin alt bölümünde ikon olarak görünür.",
+                "fields": ("instagram_url", "facebook_url"),
             },
         ),
         ("Alt bölüm", {"fields": ("footer_text",)}),

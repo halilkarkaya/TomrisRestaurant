@@ -94,6 +94,45 @@ class HomePageTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class ContactInfoTests(TestCase):
+    def test_phone_href_normalizes_turkish_numbers(self):
+        site_settings = SiteSettings.load()
+
+        site_settings.phone_number = "0258 263 00 00"
+        self.assertEqual(site_settings.phone_href, "tel:+902582630000")
+
+        site_settings.phone_number = "+90 (532) 111 22 33"
+        self.assertEqual(site_settings.phone_href, "tel:+905321112233")
+
+        site_settings.phone_number = ""
+        self.assertEqual(site_settings.phone_href, "")
+
+    def test_contact_links_render_when_filled(self):
+        site_settings = SiteSettings.load()
+        site_settings.phone_number = "0258 263 00 00"
+        site_settings.whatsapp_number = "0532 111 22 33"
+        site_settings.instagram_url = "https://www.instagram.com/tomrisrestoran"
+        site_settings.facebook_url = "https://www.facebook.com/tomrisrestoran"
+        site_settings.save()
+
+        response = self.client.get(reverse("restaurant:home"))
+
+        self.assertContains(response, 'href="tel:+902582630000"')
+        self.assertContains(response, "0258 263 00 00")
+        self.assertContains(response, "https://wa.me/905321112233")
+        self.assertContains(response, "whatsapp-float")
+        self.assertContains(response, "https://www.instagram.com/tomrisrestoran")
+        self.assertContains(response, "https://www.facebook.com/tomrisrestoran")
+
+    def test_contact_links_hidden_when_blank(self):
+        response = self.client.get(reverse("restaurant:home"))
+
+        self.assertNotContains(response, "tel:+")
+        self.assertNotContains(response, "wa.me")
+        self.assertNotContains(response, "whatsapp-float")
+        self.assertNotContains(response, "site-footer__social")
+
+
 class ProductAdminTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_superuser(

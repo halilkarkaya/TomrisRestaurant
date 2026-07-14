@@ -26,6 +26,20 @@ def turkish_slugify(value):
     return slugify(value.translate(TURKISH_SLUG_TRANSLATION))
 
 
+def turkish_phone_digits(value):
+    """'0258 263 00 00' gibi bir girdiyi '902582630000' biçimine çevirir."""
+    digits = "".join(ch for ch in value if ch.isdigit())
+    if not digits:
+        return ""
+    if digits.startswith("00"):
+        return digits[2:]
+    if digits.startswith("0"):
+        return "90" + digits[1:]
+    if digits.startswith("90"):
+        return digits
+    return "90" + digits
+
+
 class MenuCategory(models.Model):
     name = models.CharField("Kategori adı", max_length=80)
     slug = models.SlugField(
@@ -185,6 +199,30 @@ class SiteSettings(models.Model):
         default="https://maps.google.com/maps?cid=8120211308554005236&z=17&output=embed",
     )
     opening_hours = models.CharField("Çalışma saatleri", max_length=120, default="Her gün 11.00 – 23.00")
+    phone_number = models.CharField(
+        "Telefon numarası",
+        max_length=30,
+        blank=True,
+        help_text="Örnek: 0258 263 00 00. Boş bırakılırsa sitede telefon görünmez.",
+    )
+    whatsapp_number = models.CharField(
+        "WhatsApp numarası",
+        max_length=30,
+        blank=True,
+        help_text="Örnek: 0532 000 00 00. Boş bırakılırsa WhatsApp butonları görünmez.",
+    )
+    instagram_url = models.URLField(
+        "Instagram bağlantısı",
+        max_length=300,
+        blank=True,
+        help_text="Örnek: https://www.instagram.com/tomrisrestoran",
+    )
+    facebook_url = models.URLField(
+        "Facebook bağlantısı",
+        max_length=300,
+        blank=True,
+        help_text="Örnek: https://www.facebook.com/tomrisrestoran",
+    )
     footer_text = models.CharField(
         "Alt bölüm yazısı", max_length=200, default="Türk mutfağının zarafeti, aynı sofrada."
     )
@@ -195,6 +233,16 @@ class SiteSettings(models.Model):
 
     def __str__(self):
         return "Tomris Restoran site ayarları"
+
+    @property
+    def phone_href(self):
+        digits = turkish_phone_digits(self.phone_number)
+        return f"tel:+{digits}" if digits else ""
+
+    @property
+    def whatsapp_href(self):
+        digits = turkish_phone_digits(self.whatsapp_number)
+        return f"https://wa.me/{digits}" if digits else ""
 
     def save(self, *args, **kwargs):
         self.pk = 1

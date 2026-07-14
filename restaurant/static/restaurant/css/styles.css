@@ -976,8 +976,38 @@ blockquote cite {
   color: var(--muted);
 }
 
-.location-panel__details > .button {
-  align-self: flex-start;
+.location-panel__phone {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 2rem;
+}
+
+.location-panel__phone span {
+  color: var(--brass-light);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.location-panel__phone a {
+  justify-self: start;
+  color: var(--ivory);
+  font-family: var(--display);
+  font-size: clamp(1.55rem, 2.4vw, 2.15rem);
+  font-weight: 500;
+  line-height: 1.2;
+  transition: color 180ms ease;
+}
+
+.location-panel__phone a:hover {
+  color: var(--brass-light);
+}
+
+.location-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
   margin-top: 2rem;
 }
 
@@ -1028,6 +1058,7 @@ blockquote cite {
 
 .site-footer nav {
   display: flex;
+  align-items: center;
   gap: 1.5rem;
 }
 
@@ -1046,6 +1077,45 @@ blockquote cite {
 .site-footer .site-footer__copyright {
   color: var(--muted);
   white-space: nowrap;
+}
+
+.site-footer__social {
+  display: inline-flex;
+  align-items: center;
+}
+
+.site-footer__social svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.whatsapp-float {
+  position: fixed;
+  z-index: 900;
+  right: clamp(1rem, 2.5vw, 2rem);
+  bottom: clamp(1rem, 2.5vw, 2rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--night-soft);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  color: #4fce5d;
+  transition: transform 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.whatsapp-float:hover {
+  transform: translateY(-3px);
+  border-color: var(--brass-light);
+  color: #5ee06d;
+}
+
+.whatsapp-float svg {
+  width: 1.7rem;
+  height: 1.7rem;
 }
 
 .detail-header__back {
