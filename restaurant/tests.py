@@ -137,6 +137,23 @@ class ContactInfoTests(TestCase):
         self.assertNotContains(response, "site-footer__social")
 
 
+class ErrorPageTests(TestCase):
+    def test_custom_404_template_is_used(self):
+        response = self.client.get("/boyle-bir-sayfa-yok/")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, "404.html")
+        self.assertContains(response, "Aradığınız sayfa bulunamadı", status_code=404)
+
+    def test_custom_500_template_renders_without_database(self):
+        from django.template.loader import render_to_string
+
+        html = render_to_string("500.html")
+
+        self.assertIn("Beklenmeyen bir sorun oluştu", html)
+        self.assertIn("Ana sayfaya dön", html)
+
+
 @override_settings(MEDIA_ROOT=mkdtemp(prefix="tomris-test-media-"))
 class ImageShrinkTests(TestCase):
     def _jpeg_upload(self, width, height):
