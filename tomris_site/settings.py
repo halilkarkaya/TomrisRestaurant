@@ -9,6 +9,16 @@ mimetypes.add_type("image/webp", ".webp", strict=True)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Üretimde ortam değişkenlerini BASE_DIR/.env dosyasından yükle (varsa).
+# Gerçek ortam değişkenleri her zaman önceliklidir (setdefault).
+_env_path = BASE_DIR / ".env"
+if _env_path.exists():
+    for _line in _env_path.read_text(encoding="utf-8").splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _key, _, _value = _line.partition("=")
+            os.environ.setdefault(_key.strip(), _value.strip().strip("\"'"))
+
 SECRET_KEY = os.getenv(
     "DJANGO_SECRET_KEY",
     "django-insecure-tomris-local-development-key-change-in-production",
@@ -21,6 +31,14 @@ ALLOWED_HOSTS = [
         "127.0.0.1,localhost,testserver",
     ).split(",")
     if host.strip()
+]
+
+# HTTPS altında admin girişi ve form gönderimleri için gereklidir (Django 4+).
+# Örnek: https://ayse.nedenkapatilsin.com.tr
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
 ]
 
 INSTALLED_APPS = [

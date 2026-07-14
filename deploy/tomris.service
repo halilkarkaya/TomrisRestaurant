@@ -1,0 +1,14 @@
+[Unit]
+Description=Tomris Restoran Gunicorn
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/tomris
+ExecStart=/var/www/tomris/venv/bin/gunicorn tomris_site.wsgi:application --bind 127.0.0.1:2402 --workers 3 --timeout 60
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
