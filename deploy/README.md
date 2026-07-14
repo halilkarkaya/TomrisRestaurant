@@ -65,16 +65,24 @@ sudo nano .env      # DJANGO_SECRET_KEY satırını doldurun
 
 ## 4. Sunucuda: kurulumu çalıştır
 
+**Bu sunucu CloudPanel kullanıyor** (nginx/SSL/güvenlik duvarını panel yönetir):
+
 ```bash
 cd /var/www/tomris
-sudo bash deploy/setup.sh
+sudo bash deploy/setup-cloudpanel.sh
 ```
 
-Script; sanal ortamı kurar, bağımlılıkları yükler, `migrate` + `collectstatic`
-çalıştırır, dosya sahipliğini `www-data`'ya verir, `tomris` servisini ve nginx
-bloğunu ekler, ardından `certbot` ile SSL sertifikası alır.
+Bu script; sanal ortamı kurar, bağımlılıkları yükler, `migrate` + `collectstatic`
+çalıştırır, dosya sahipliğini `www-data`'ya verir ve `tomris` servisini başlatır
+(gunicorn `127.0.0.1:2402`). nginx/SSL'e **dokunmaz** — onları CloudPanel'de yaparız.
 
-Certbot "HTTP'yi HTTPS'e yönlendir" sorusuna **Redirect (2)** yanıtı verin.
+Ardından CloudPanel panelinde (`https://50.114.185.125:8443`):
+1. **Add Site → Create a Reverse Proxy:** `ayse.nedenkapatilsin.com.tr`, hedef `http://127.0.0.1:2402`
+2. **Site → Vhost Editor:** `location /media/ { alias /var/www/tomris/media/; }` bloğunu ekleyin, `client_max_body_size 12M;` yapın
+3. **Site → SSL/TLS → New Let's Encrypt Certificate** (DNS yayıldıktan sonra)
+
+> Panelsiz çıplak Ubuntu sunucular için bunun yerine `sudo bash deploy/setup.sh`
+> kullanılır (nginx bloğunu + certbot'u kendisi ekler).
 
 ## 5. Yayın sonrası
 
