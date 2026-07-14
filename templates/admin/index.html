@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block coltype %}colM{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard tomris-dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <section class="admin-welcome" aria-labelledby="admin-welcome-title">
+      <p class="admin-welcome__eyebrow">Tomris Restoran</p>
+      <h1 id="admin-welcome-title">Menünüzü buradan yönetin</h1>
+      <p>Site yazılarını, menü kategorilerini, ürünleri, fiyatları ve ürün fotoğraflarını buradan yönetebilirsiniz.</p>
+      <div class="admin-quick-actions" aria-label="Hızlı işlemler">
+        <a class="admin-quick-actions__primary" href="{% url 'admin:restaurant_product_add' %}">Yeni ürün ekle</a>
+        <a href="{% url 'admin:restaurant_product_changelist' %}">Ürünleri düzenle</a>
+        <a href="{% url 'admin:restaurant_menucategory_changelist' %}">Kategorileri düzenle</a>
+        <a href="{% url 'admin:restaurant_sitesettings_changelist' %}">Site yazılarını düzenle</a>
+        <a href="{% url 'restaurant:home' %}" target="_blank" rel="noopener">Siteyi kontrol et</a>
+      </div>
+    </section>
+
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+  </div>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

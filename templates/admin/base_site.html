@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Tomris Yönetim{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'restaurant/css/admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <div id="site-name">
+    <a href="{% url 'admin:index' %}" class="tomris-admin-brand">
+      <span class="tomris-admin-brand__name">Tomris</span>
+      <span class="tomris-admin-brand__label">Restoran · Menü Yönetimi</span>
+    </a>
+  </div>
+{% endblock %}
+
+{% block usertools %}{% endblock %}
+
+{% block nav-global %}
+  {% if user.is_authenticated %}
+    <div class="admin-nav-actions">
+      <a class="view-site-link" href="{% url 'restaurant:home' %}" target="_blank" rel="noopener">Siteyi görüntüle</a>
+      <a class="change-password-link" href="{% url 'admin:password_change' %}">Şifreyi değiştir</a>
+      <form action="{% url 'admin:logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Oturumu kapat</button>
+      </form>
+    </div>
+  {% endif %}
+{% endblock %}

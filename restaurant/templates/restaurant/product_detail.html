@@ -1,0 +1,106 @@
+{% load static %}
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ product.name }} — {{ product.description|default:'Tomris Restoran menüsü' }}">
+  <meta name="theme-color" content="#080706">
+  <title>{{ product.name }} | {{ site.brand_name }} {{ site.brand_type }}</title>
+
+  <link rel="icon" href="{% static 'restaurant/images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;600&amp;family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'restaurant/css/styles.css' %}">
+  <script src="{% static 'restaurant/js/main.js' %}" defer></script>
+</head>
+<body class="product-detail-page">
+  <a class="skip-link" href="#icerik">İçeriğe geç</a>
+
+  <header class="site-header is-scrolled" data-header>
+    <div class="site-header__inner">
+      <a class="brand" href="{% url 'restaurant:home' %}" aria-label="Tomris Restoran ana sayfa">
+        <span class="brand__name">{{ site.brand_name }}</span>
+        <span class="brand__type">{{ site.brand_type }}</span>
+      </a>
+
+      <a class="detail-header__back" href="{% url 'restaurant:home' %}#menu">Menüye dön <span aria-hidden="true">↙</span></a>
+    </div>
+  </header>
+
+  <main id="icerik" tabindex="-1">
+    <section class="product-detail" aria-labelledby="product-title">
+      <div class="section-shell">
+        <nav class="product-detail__breadcrumb" aria-label="Sayfa yolu">
+          <a href="{% url 'restaurant:home' %}">Ana sayfa</a>
+          <span aria-hidden="true">/</span>
+          <a href="{% url 'restaurant:home' %}#menu">Menü</a>
+          <span aria-hidden="true">/</span>
+          <span>{{ product.category.name }}</span>
+        </nav>
+
+        <div class="product-detail__grid">
+          <article class="product-detail__intro">
+            {% if product.image %}
+              <figure class="product-detail__visual">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" width="900" height="600">
+              </figure>
+            {% endif %}
+            <p class="section-kicker">{{ product.category.name }}</p>
+            <h1 id="product-title">{{ product.name }}</h1>
+            <p class="product-detail__description">
+              {{ product.description|default:"Bu ürünün açıklaması yakında eklenecek." }}
+            </p>
+            <p class="product-detail__price"><strong>{{ product.price|floatformat:2 }}</strong> <span>₺</span></p>
+            <a class="button button--primary" href="{% url 'restaurant:home' %}#menu">Tüm menüyü gör</a>
+          </article>
+
+          <aside class="product-card" aria-label="Ürün bilgileri">
+            <div class="product-card__heading">
+              <span>Tomris mutfağından</span>
+              <strong>Ürün bilgileri</strong>
+            </div>
+
+            <section class="product-card__section">
+              <h2>İçindekiler</h2>
+              {% if product.ingredients %}
+                <p>{{ product.ingredients|linebreaksbr }}</p>
+              {% else %}
+                <p class="product-card__empty">İçerik bilgisi yakında eklenecek.</p>
+              {% endif %}
+            </section>
+
+            <section class="product-card__section product-card__section--allergen">
+              <h2>Alerjen bilgisi</h2>
+              {% if product.allergen_info %}
+                <p>{{ product.allergen_info }}</p>
+              {% else %}
+                <p class="product-card__empty">Belirtilmiş bir alerjen bilgisi bulunmuyor.</p>
+              {% endif %}
+            </section>
+
+            <p class="product-card__note">Alerjiniz varsa sipariş vermeden önce restoran görevlisine bilgi verin.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="section-shell site-footer__inner">
+      <a class="brand brand--footer" href="{% url 'restaurant:home' %}">
+        <span class="brand__name">{{ site.brand_name }}</span>
+        <span class="brand__type">{{ site.brand_type }}</span>
+      </a>
+      <p>{{ site.footer_text }}</p>
+      <nav aria-label="Alt navigasyon">
+        <a href="{% url 'restaurant:home' %}#hikayemiz">Hakkımızda</a>
+        <a href="{% url 'restaurant:home' %}#menu">Menü</a>
+        <a href="{% url 'restaurant:home' %}#iletisim">İletişim</a>
+      </nav>
+      <p class="site-footer__copyright">© <span data-year>2026</span> {{ site.brand_name }} {{ site.brand_type }}</p>
+    </div>
+  </footer>
+</body>
+</html>

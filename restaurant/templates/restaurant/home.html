@@ -1,0 +1,225 @@
+{% load static %}
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ site.brand_name }} {{ site.brand_type }} — {{ site.hero_lead }}">
+  <meta name="theme-color" content="#080706">
+  <title>{{ site.brand_name }} {{ site.brand_type }} | Türk Mutfağı</title>
+
+  <link rel="icon" href="{% static 'restaurant/images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preload" as="image" href="{% static 'restaurant/images/tomris-ataturk-header.png' %}" fetchpriority="high">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;600&amp;family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'restaurant/css/styles.css' %}">
+  <script src="{% static 'restaurant/js/main.js' %}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#icerik">İçeriğe geç</a>
+
+  <header class="site-header" data-header>
+    <div class="site-header__inner">
+      <a class="brand" href="#anasayfa" aria-label="Tomris Restoran ana sayfa">
+        <span class="brand__name">{{ site.brand_name }}</span>
+        <span class="brand__type">{{ site.brand_type }}</span>
+      </a>
+
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" data-menu-toggle>
+        <span class="menu-toggle__label">Menü</span>
+        <span class="menu-toggle__icon" aria-hidden="true"><i></i><i></i></span>
+      </button>
+
+      <nav class="site-nav" id="site-navigation" aria-label="Ana navigasyon" data-navigation>
+        <ul class="site-nav__list">
+          <li><a href="#anasayfa" data-nav-link>Anasayfa</a></li>
+          <li><a href="#hikayemiz" data-nav-link>Hakkımızda</a></li>
+          <li><a href="#menu" data-nav-link>Menü</a></li>
+          <li><a href="#iletisim" data-nav-link>İletişim</a></li>
+          <li><a class="site-nav__reservation" href="#iletisim">Yol tarifi</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="icerik" tabindex="-1">
+    <section class="hero" id="anasayfa" aria-labelledby="hero-title" data-section>
+      <div class="hero__media">
+        <img
+          src="{% if site.hero_image %}{{ site.hero_image.url }}{% else %}{% static 'restaurant/images/tomris-ataturk-header.png' %}{% endif %}"
+          width="1672"
+          height="941"
+          alt="{{ site.brand_name }} {{ site.brand_type }} ana sayfa görseli"
+          fetchpriority="high"
+          decoding="async"
+        >
+      </div>
+      <div class="hero__shade" aria-hidden="true"></div>
+
+      <div class="hero__inner section-shell">
+        <div class="hero__copy">
+          <div class="hero__tribute" aria-label="Türk bayrağı, {{ site.hero_eyebrow }}">
+            <span class="hero__flag" aria-hidden="true">
+              <svg class="hero__flag-fallback" viewBox="0 0 900 600" focusable="false">
+                <rect width="900" height="600" fill="#e30a17"/>
+                <circle cx="382.5" cy="300" r="150" fill="#fff"/>
+                <circle cx="427.5" cy="300" r="120" fill="#e30a17"/>
+                <polygon points="570,225 587.6,275.7 641.3,276.8 597.8,308.3 613.9,359.5 570,330 526.1,359.5 542.2,308.3 498.7,276.8 552.4,275.7" fill="#fff" transform="rotate(90 570 300)"/>
+              </svg>
+              <img data-flag-image src="{% static 'restaurant/images/turk-bayragi-kumas.webp' %}" alt="" width="768" height="512">
+            </span>
+            <span class="hero__tribute-copy">
+              <small>Cumhuriyetin ışığında</small>
+              <strong>{{ site.hero_eyebrow }}</strong>
+            </span>
+          </div>
+          <h1 id="hero-title">
+            <span>{{ site.hero_title_first }}</span>
+            <span>{{ site.hero_title_second }}</span>
+          </h1>
+          <p class="hero__lead">{{ site.hero_lead }}</p>
+          <div class="hero__actions">
+            <a class="button button--primary" href="#menu">Menüyü incele</a>
+            <a class="button button--ghost" href="#iletisim">Yol tarifi</a>
+          </div>
+        </div>
+      </div>
+
+      <a class="scroll-cue" href="#hikayemiz" aria-label="Hakkımızda bölümüne geç">
+        <span>Keşfet</span>
+        <i aria-hidden="true"></i>
+      </a>
+    </section>
+
+    <section class="story section" id="hikayemiz" aria-labelledby="story-title" data-section>
+      <div class="section-shell story__grid">
+        <header class="section-heading">
+          <p class="section-kicker">{{ site.story_kicker }}</p>
+          <h2 id="story-title">{{ site.story_title|linebreaksbr }}</h2>
+        </header>
+
+        <div class="story__content">
+          <p class="story__intro">{{ site.story_intro|linebreaksbr }}</p>
+          <p>{{ site.story_body|linebreaksbr }}</p>
+          <blockquote>
+            <p>“{{ site.story_quote }}”</p>
+            <cite>{{ site.brand_name }} {{ site.brand_type }}</cite>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section class="menu-section section" id="menu" aria-labelledby="menu-title" data-section>
+      <div class="section-shell">
+        <header class="menu-section__header">
+          <div class="section-heading">
+            <p class="section-kicker">{{ site.menu_kicker }}</p>
+            <h2 id="menu-title">{{ site.menu_title }}</h2>
+          </div>
+          <p class="menu-section__summary">{{ site.menu_summary }}</p>
+        </header>
+
+        <nav class="category-nav" aria-label="Menü kategorileri">
+          {% for category in categories %}
+            <a href="#{{ category.slug }}">{{ category.name }}</a>
+          {% endfor %}
+        </nav>
+
+        <div class="menu-grid">
+          {% for category in categories %}
+            <article class="menu-category" id="{{ category.slug }}">
+              <header class="menu-category__header">
+                <p>{{ category.eyebrow }}</p>
+                <h3>{{ category.name }}</h3>
+              </header>
+              {% if category.visible_products %}
+                <ul class="menu-list">
+                  {% for product in category.visible_products %}
+                    <li class="menu-item">
+                      <a class="menu-item__link{% if product.image %} menu-item__link--with-image{% endif %}" href="{{ product.get_absolute_url }}" aria-label="{{ product.name }} detaylarını incele">
+                        {% if product.image %}
+                          <span class="menu-item__image">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" decoding="async">
+                          </span>
+                        {% endif %}
+                        <div class="menu-item__heading">
+                          <h4>{{ product.name }}</h4>
+                          <span class="menu-item__leader" aria-hidden="true"></span>
+                          <span class="menu-item__price">{{ product.price|floatformat:0 }} ₺</span>
+                        </div>
+                        {% if product.description %}<p>{{ product.description }}</p>{% endif %}
+                        <span class="menu-item__detail">Detayları gör <span aria-hidden="true">↗</span></span>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="menu-category__empty">Bu kategoride yayında ürün bulunmuyor.</p>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+
+        <p class="menu-note">{{ site.menu_note }}</p>
+      </div>
+    </section>
+
+    <section class="contact section" id="iletisim" aria-labelledby="contact-title" data-section>
+      <div class="section-shell">
+        <header class="contact__header">
+          <div class="section-heading">
+            <p class="section-kicker">{{ site.contact_kicker }}</p>
+            <h2 id="contact-title">{{ site.contact_title|linebreaksbr }}</h2>
+          </div>
+          <p>{{ site.contact_text }}</p>
+        </header>
+
+        <div class="location-panel">
+          <div class="location-panel__map">
+            <div class="location-panel__map-fallback" aria-hidden="true">
+              <span class="map-pin"></span>
+              <strong>Mimar Sinan Caddesi</strong>
+              <span>Merkezefendi / Denizli</span>
+            </div>
+            <iframe
+              src="{{ site.map_embed }}"
+              title="Tomris Mini Restoran konum haritası"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <article class="location-panel__details">
+            <p class="contact__label">{{ site.brand_name }} {{ site.brand_type }}</p>
+            <h3>{{ site.address_title }}</h3>
+            <p>{{ site.address_detail }}</p>
+            <a class="button button--primary" href="{{ site.map_link }}" target="_blank" rel="noopener noreferrer">Google Haritalar'da aç</a>
+            <div class="location-panel__hours">
+              <span>Çalışma saatleri</span>
+              <strong>{{ site.opening_hours }}</strong>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="section-shell site-footer__inner">
+      <a class="brand brand--footer" href="#anasayfa">
+        <span class="brand__name">{{ site.brand_name }}</span>
+        <span class="brand__type">{{ site.brand_type }}</span>
+      </a>
+      <p>{{ site.footer_text }}</p>
+      <nav aria-label="Alt navigasyon">
+        <a href="#hikayemiz">Hakkımızda</a>
+        <a href="#menu">Menü</a>
+        <a href="#iletisim">İletişim</a>
+        <a href="{% url 'admin:index' %}">Yönetim</a>
+      </nav>
+      <p class="site-footer__copyright">© <span data-year>2026</span> {{ site.brand_name }} {{ site.brand_type }}</p>
+    </div>
+  </footer>
+</body>
+</html>

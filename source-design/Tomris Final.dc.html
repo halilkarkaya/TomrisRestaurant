@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#131216;color:#F2ECDF;font-family:Jost,system-ui,sans-serif}
+a{color:#C7A566}a:hover{color:#FF5A63}
+</style>
+</helmet>
+<div style="background:{{bgPage}};color:{{ink}};min-height:100vh">
+
+  <div style="display:flex;justify-content:center;align-items:center;gap:18px;padding:20px 0;border-bottom:1px solid {{border}}">
+    <span style="width:60px;height:1px;background:{{borderStrong}}"></span>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;letter-spacing:.28em;padding-left:.28em">TOMRİS</span>
+    <span style="width:60px;height:1px;background:{{borderStrong}}"></span>
+  </div>
+
+  <div style="position:relative;height:520px">
+    <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="a-hero" src="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201200%20800'%3E%3Crect%20width%3D'1200'%20height%3D'800'%20fill%3D'%23E30A17'%2F%3E%3Ccircle%20cx%3D'425'%20cy%3D'400'%20r%3D'200'%20fill%3D'%23fff'%2F%3E%3Ccircle%20cx%3D'475'%20cy%3D'400'%20r%3D'160'%20fill%3D'%23E30A17'%2F%3E%3Cpolygon%20fill%3D'%23fff'%20points%3D'780%2C400%20710.9%2C422.5%20710.9%2C495.1%20668.2%2C436.3%20599.1%2C458.8%20641.8%2C400%20599.1%2C341.2%20668.2%2C363.7%20710.9%2C304.9%20710.9%2C377.5'%2F%3E%3C%2Fsvg%3E" shape="rect" placeholder="Atatürk ve Türk bayrağı görselini buraya sürükleyin" hint-size="100%,520px" style="width:100%;height:100%"></x-import>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;padding-bottom:52px;background:linear-gradient(180deg,rgba(19,18,22,0) 40%,rgba(19,18,22,.82) 88%);pointer-events:none;color:#F2ECDF">
+      <div style="font-size:12px;letter-spacing:.5em;padding-left:.5em;color:{{accentSoft}};font-weight:500;text-transform:uppercase">Türk Mutfağı</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:76px;font-weight:600;line-height:1.05;margin-top:10px">Tomris</div>
+      <div style="width:38px;height:2px;background:{{accent}};margin:18px 0 14px"></div>
+      <div style="font-size:15px;font-weight:300;letter-spacing:.12em;color:#CFC6B8">Türk mutfağının zarafeti, aynı sofrada</div>
+    </div>
+  </div>
+
+  <div style="padding:60px 48px 72px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px">
+      <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600">Çorbalar</h3>
+      <span style="font-size:12px;letter-spacing:.2em;color:{{inkMuted}};text-transform:uppercase;white-space:nowrap">Günlük taze</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px;margin-bottom:52px">
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m1" src="https://picsum.photos/seed/b-m1/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Mercimek Çorbası</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Tereyağı ve pul biber gezdirilmiş</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">140 ₺</div>
+        </div>
+      </div>
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m2" src="https://picsum.photos/seed/b-m2/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Ezogelin Çorbası</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Nane ve limon eşliğinde</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">150 ₺</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px">
+      <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600">Ana Yemekler</h3>
+      <span style="font-size:12px;letter-spacing:.2em;color:{{inkMuted}};text-transform:uppercase;white-space:nowrap">Şefin seçkisi</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px;margin-bottom:52px">
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m3" src="https://picsum.photos/seed/b-m3/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Fırın Makarna</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Kaşar rendesiyle fırınlanmış</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">260 ₺</div>
+        </div>
+      </div>
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m4" src="https://picsum.photos/seed/b-m4/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Kremalı Tavuklu Makarna</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Mantar ve taze krema soslu</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">320 ₺</div>
+        </div>
+      </div>
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m5" src="https://picsum.photos/seed/b-m5/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Pilav Üstü Kavurma</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Tereyağlı pilav, dana kavurma</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">420 ₺</div>
+        </div>
+      </div>
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m6" src="https://picsum.photos/seed/b-m6/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Etli Kuru Fasulye</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Kelle pilav ve turşu eşliğinde</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">340 ₺</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px">
+      <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600">Tatlılar &amp; İçecekler</h3>
+      <span style="font-size:12px;letter-spacing:.2em;color:{{inkMuted}};text-transform:uppercase;white-space:nowrap">Sofranın sonu</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px">
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m7" src="https://picsum.photos/seed/b-m7/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Fırın Sütlaç</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Karamelize, fındık kırığıyla</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">180 ₺</div>
+        </div>
+      </div>
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m8" src="https://picsum.photos/seed/b-m8/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Cevizli Baklava</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Şerbetli, kaymak eşliğinde</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">220 ₺</div>
+        </div>
+      </div>
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m9" src="https://picsum.photos/seed/b-m9/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Türk Çayı</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">İnce belli bardakta</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">40 ₺</div>
+        </div>
+      </div>
+      <div style="background:{{bgCard}};border:1px solid {{border}}">
+        <sc-if value="{{fotoGoster}}" hint-placeholder-val="{{ true }}"><div style="height:150px"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="b-m10" src="https://picsum.photos/seed/b-m10/600/450" shape="rect" placeholder="Fotoğraf" hint-size="100%,150px" style="width:100%;height:100%"></x-import></div></sc-if>
+        <div style="padding:16px 18px 18px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600">Ev Limonatası</div>
+          <div style="font-size:12.5px;font-weight:300;color:{{inkMuted}};margin-top:4px;line-height:1.5">Taze sıkım, naneli</div>
+          <div style="margin-top:12px;display:inline-block;border:1px solid {{accent}};color:{{chipColor}};font-size:13px;letter-spacing:.06em;padding:4px 12px">90 ₺</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:40px;background:{{bgBand}};border-top:1px solid {{border}};padding:48px">
+    <div>
+      <div style="font-size:11px;letter-spacing:.42em;color:{{accentSoft}};font-weight:500;text-transform:uppercase">Hakkımızda</div>
+      <p style="margin:14px 0 0;font-size:15px;font-weight:300;line-height:1.75;color:{{inkSoft}};max-width:460px">Tomris, Türk mutfağının klasik lezzetlerini özenle hazırlanmış tariflerle sofranıza taşır. Çorbadan tatlıya her tabak, misafirlerimiz kendini evinde hissetsin diye aynı özenle hazırlanır.</p>
+    </div>
+    <div style="border-left:2px solid {{accent}};padding-left:32px;display:flex;flex-direction:column;gap:14px;justify-content:center">
+      <div style="font-size:14.5px;font-weight:300;color:{{inkSoft}}">Atatürk Bulvarı No: 23, Çankaya / Ankara</div>
+      <div style="font-size:14.5px;font-weight:300;color:{{inkSoft}}">+90 312 555 23 23</div>
+      <div style="font-size:14.5px;font-weight:300;color:{{inkSoft}}">Her gün 11.00 – 23.00</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;atmosfer&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Gece&quot;, &quot;Gündüz&quot;], &quot;default&quot;: &quot;Gece&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Atmosfer&quot; },
+  &quot;vurgu&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;options&quot;: [&quot;#E30A17&quot;, &quot;#7A1E22&quot;, &quot;#C7A566&quot;], &quot;default&quot;: &quot;#E30A17&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Atmosfer&quot; },
+  &quot;fotoGoster&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Menü&quot; }
+}">
+class Component extends DCLogic {
+  renderVals() {
+    const gece = (this.props.atmosfer ?? 'Gece') === 'Gece';
+    const accent = this.props.vurgu ?? '#E30A17';
+    const soft = { '#E30A17': '#FF5A63', '#7A1E22': '#C98A8D', '#C7A566': '#DDC08A' }[accent] || accent;
+    return {
+      fotoGoster: this.props.fotoGoster ?? true,
+      accent,
+      accentSoft: gece ? soft : accent,
+      chipColor: gece ? soft : accent,
+      bgPage: gece ? '#131216' : '#F4EFE6',
+      bgCard: gece ? '#1c1a20' : '#FFFFFF',
+      bgBand: gece ? '#1a181e' : '#ECE4D6',
+      ink: gece ? '#F2ECDF' : '#2A2118',
+      inkMuted: gece ? '#A79D8F' : '#6E6355',
+      inkSoft: gece ? '#CFC6B8' : '#4A4036',
+      border: gece ? 'rgba(242,236,223,.08)' : 'rgba(42,33,24,.12)',
+      borderStrong: gece ? 'rgba(242,236,223,.25)' : 'rgba(42,33,24,.28)'
+    };
+  }
+}
+</script>
+</body>
+</html>
