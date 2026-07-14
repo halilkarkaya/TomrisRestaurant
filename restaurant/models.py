@@ -1,7 +1,15 @@
+from io import BytesIO
+from pathlib import PurePosixPath
+
+from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from PIL import Image, ImageOps
+
+PRODUCT_IMAGE_MAX_WIDTH = 1200
+HERO_IMAGE_MAX_WIDTH = 1920
 
 
 TURKISH_SLUG_TRANSLATION = str.maketrans(
@@ -24,6 +32,41 @@ TURKISH_SLUG_TRANSLATION = str.maketrans(
 
 def turkish_slugify(value):
     return slugify(value.translate(TURKISH_SLUG_TRANSLATION))
+
+
+def shrink_uploaded_image(image_field, max_width):
+    """Genişliği max_width pikseli aşan görselleri orantılı olarak küçültür."""
+    if not image_field:
+        return
+
+    try:
+        image = Image.open(image_field)
+        image_format = (image.format or "JPEG").upper()
+        image = ImageOps.exif_transpose(image)
+    except (OSError, ValueError):
+        return
+
+    if image.width <= max_width:
+        return
+
+    new_height = round(image.height * max_width / image.width)
+    image = image.resize((max_width, new_height), Image.LANCZOS)
+
+    if image_format == "WEBP":
+        save_kwargs = {"quality": 82, "method": 4}
+    elif image_format == "PNG":
+        save_kwargs = {"optimize": True}
+    else:
+        image_format = "JPEG"
+        if image.mode not in ("RGB", "L"):
+            image = image.convert("RGB")
+        save_kwargs = {"quality": 82, "optimize": True}
+
+    buffer = BytesIO()
+    image.save(buffer, format=image_format, **save_kwargs)
+
+    file_name = PurePosixPath(image_field.name.replace("\\", "/")).name
+    image_field.save(file_name, ContentFile(buffer.getvalue()), save=False)
 
 
 def turkish_phone_digits(value):
@@ -107,6 +150,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        shrink_uploaded_image(self.image, PRODUCT_IMAGE_MAX_WIDTH)
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse(
@@ -246,6 +293,7 @@ class SiteSettings(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        shrink_uploaded_image(self.hero_image, HERO_IMAGE_MAX_WIDTH)
         super().save(*args, **kwargs)
 
     @classmethod

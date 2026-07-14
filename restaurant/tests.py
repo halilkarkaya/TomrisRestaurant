@@ -1,8 +1,12 @@
 from decimal import Decimal
+from io import BytesIO
+from tempfile import mkdtemp
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from PIL import Image
 
 from .models import MenuCategory, Product, SiteSettings
 
@@ -131,6 +135,46 @@ class ContactInfoTests(TestCase):
         self.assertNotContains(response, "wa.me")
         self.assertNotContains(response, "whatsapp-float")
         self.assertNotContains(response, "site-footer__social")
+
+
+@override_settings(MEDIA_ROOT=mkdtemp(prefix="tomris-test-media-"))
+class ImageShrinkTests(TestCase):
+    def _jpeg_upload(self, width, height):
+        buffer = BytesIO()
+        Image.new("RGB", (width, height), "#8f2428").save(buffer, format="JPEG")
+        return SimpleUploadedFile("test-foto.jpg", buffer.getvalue(), content_type="image/jpeg")
+
+    def _create_product(self, upload):
+        return Product.objects.create(
+            name="Foto Testi",
+            category=MenuCategory.objects.get(slug="soups"),
+            price=Decimal("100.00"),
+            image=upload,
+        )
+
+    def test_large_product_image_is_shrunk_on_save(self):
+        product = self._create_product(self._jpeg_upload(2400, 1600))
+
+        with Image.open(product.image.path) as saved:
+            self.assertEqual((saved.width, saved.height), (1200, 800))
+
+    def test_small_product_image_is_kept_as_is(self):
+        product = self._create_product(self._jpeg_upload(800, 500))
+
+        with Image.open(product.image.path) as saved:
+            self.assertEqual((saved.width, saved.height), (800, 500))
+
+    def test_large_hero_image_is_shrunk_on_save(self):
+        site_settings = SiteSettings.load()
+        buffer = BytesIO()
+        Image.new("RGB", (3200, 1800), "#2a170c").save(buffer, format="JPEG")
+        site_settings.hero_image = SimpleUploadedFile(
+            "hero-foto.jpg", buffer.getvalue(), content_type="image/jpeg"
+        )
+        site_settings.save()
+
+        with Image.open(site_settings.hero_image.path) as saved:
+            self.assertEqual((saved.width, saved.height), (1920, 1080))
 
 
 class ProductAdminTests(TestCase):
