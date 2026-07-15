@@ -1,21 +1,6 @@
 #!/usr/bin/env bash
-# Sonraki guncellemeler icin: yeni kod GitHub'a push edildikten sonra sunucuda root/sudo ile calistir.
+# Eski komutlarla uyumluluk icin update.sh betigine yonlendirir.
 set -euo pipefail
 
-APP_DIR=/var/www/tomris
-cd "$APP_DIR"
-
-echo "==> Kod guncelleniyor"
-sudo -u www-data git pull
-
-source venv/bin/activate
-pip install -r requirements.txt
-python manage.py check --deploy
-python manage.py migrate
-python manage.py collectstatic --noinput
-deactivate
-
-echo "==> Servis yeniden baslatiliyor"
-systemctl restart tomris
-
-echo "Guncelleme tamamlandi."
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+exec bash "$SCRIPT_DIR/update.sh" "$@"

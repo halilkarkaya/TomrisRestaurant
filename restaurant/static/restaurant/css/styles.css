@@ -1,3 +1,76 @@
+/* Yalnızca sitede gereken temel Latin ve Türkçe glifler. */
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../fonts/alegreya-sans-400-core.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201D, U+2020, U+2026, U+20AC, U+20BA, U+2122, U+2191, U+2193, U+2197, U+2212, U+2215;
+}
+
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../fonts/alegreya-sans-400-tr.woff2) format("woff2");
+  unicode-range: U+011E-011F, U+0130, U+015E-015F;
+}
+
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../fonts/alegreya-sans-500-core.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201D, U+2020, U+2026, U+20AC, U+20BA, U+2122, U+2191, U+2193, U+2197, U+2212, U+2215;
+}
+
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../fonts/alegreya-sans-500-tr.woff2) format("woff2");
+  unicode-range: U+011E-011F, U+0130, U+015E-015F;
+}
+
+@font-face {
+  font-family: "Bodoni Moda";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../fonts/bodoni-moda-500-core.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201D, U+2020, U+2026, U+20AC, U+20BA, U+2122, U+2191, U+2193, U+2197, U+2212, U+2215;
+}
+
+@font-face {
+  font-family: "Bodoni Moda";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(../fonts/bodoni-moda-500-tr.woff2) format("woff2");
+  unicode-range: U+011E-011F, U+0130, U+015E-015F;
+}
+
+@font-face {
+  font-family: "Bodoni Moda";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(../fonts/bodoni-moda-600-core.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201D, U+2020, U+2026, U+20AC, U+20BA, U+2122, U+2191, U+2193, U+2197, U+2212, U+2215;
+}
+
+@font-face {
+  font-family: "Bodoni Moda";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(../fonts/bodoni-moda-600-tr.woff2) format("woff2");
+  unicode-range: U+011E-011F, U+0130, U+015E-015F;
+}
+
 :root {
   color-scheme: dark;
   --night: #080706;
@@ -979,6 +1052,16 @@ blockquote cite {
   min-height: inherit;
   border: 0;
   filter: grayscale(0.18) sepia(0.2) saturate(0.88) contrast(1.06);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.location-panel__map iframe[hidden] {
+  display: none;
+}
+
+.location-panel__map.is-loaded iframe {
+  opacity: 1;
 }
 
 .location-panel__map-fallback {
@@ -991,6 +1074,12 @@ blockquote cite {
   justify-content: center;
   color: var(--ivory-soft);
   text-align: center;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.location-panel__map.is-loaded .location-panel__map-fallback {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .location-panel__map-fallback strong {
@@ -1000,13 +1089,48 @@ blockquote cite {
   font-weight: 500;
 }
 
-.location-panel__map-fallback > span:last-child {
+.location-panel__map-fallback > strong + span {
   margin-top: 0.25rem;
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.location-panel__map-load {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  margin-top: 1.35rem;
+  padding: 0.65rem 1.1rem;
+  border: 1px solid var(--brass-light);
+  background: rgba(8, 7, 6, 0.76);
+  color: var(--ivory);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+
+.location-panel__map-load:hover,
+.location-panel__map-load:focus-visible {
+  background: var(--brass-light);
+  color: var(--night);
+}
+
+.location-panel__map-load:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.location-panel__map-load[hidden] {
+  display: none;
 }
 
 .map-pin {

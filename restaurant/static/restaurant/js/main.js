@@ -9,6 +9,9 @@
   const mainContent = document.querySelector("#icerik");
   const flagImage = document.querySelector("[data-flag-image]");
   const flagTribute = document.querySelector("[data-flag-intro]");
+  const mapContainer = document.querySelector("[data-map-container]");
+  const mapFrame = document.querySelector("[data-map-frame]");
+  const mapLoadButton = document.querySelector("[data-map-load]");
   const desktopNavigation = window.matchMedia("(min-width: 52.01rem)");
 
   const hideUnavailableFlagImage = () => flagImage?.classList.add("is-unavailable");
@@ -30,6 +33,35 @@
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!hasSeenFlagIntro && !prefersReducedMotion) flagTribute.classList.add("is-arriving");
+  }
+
+  if (mapContainer && mapFrame && mapLoadButton && mapFrame.dataset.mapSrc) {
+    mapLoadButton.hidden = false;
+    mapLoadButton.addEventListener(
+      "click",
+      () => {
+        const mapSource = mapFrame.dataset.mapSrc;
+        if (!mapSource) return;
+
+        mapLoadButton.disabled = true;
+        mapLoadButton.textContent = "Harita yükleniyor…";
+        mapContainer.classList.add("is-loading");
+        mapFrame.hidden = false;
+
+        mapFrame.addEventListener(
+          "load",
+          () => {
+            mapContainer.classList.remove("is-loading");
+            mapContainer.classList.add("is-loaded");
+          },
+          { once: true }
+        );
+
+        mapFrame.src = mapSource;
+        delete mapFrame.dataset.mapSrc;
+      },
+      { once: true }
+    );
   }
 
   const setHeaderState = () => {

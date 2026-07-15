@@ -75,7 +75,19 @@ Kod `main` dalına gönderildikten sonra sunucuda:
 
 ```bash
 cd /var/www/tomris
-sudo bash deploy/deploy.sh
+sudo bash deploy/update.sh
 ```
 
-Güncelleme betiği veritabanını ve media dosyalarını silmez.
+Betik güncellemeden önce SQLite veritabanını `backups/` altında zaman damgalı olarak
+yedekler; media dosyalarını silmez. Sunucudaki takip edilen dosyalarda yerel değişiklik
+varsa bunların üzerine yazmadan durur. Güncelleme sonunda Gunicorn'u yeniden başlatır ve
+`127.0.0.1:8090` üzerinden sağlık kontrolü yapar.
+
+Her güncellemede Django testlerini de çalıştırmak için:
+
+```bash
+cd /var/www/tomris
+sudo RUN_TESTS=1 bash deploy/update.sh
+```
+
+Eski `sudo bash deploy/deploy.sh` komutu da aynı betiğe yönlendirilir.

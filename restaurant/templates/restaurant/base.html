@@ -9,8 +9,8 @@
   <title>{% block title %}{{ site.brand_name }} {{ site.brand_type }} | Türk Mutfağı{% endblock %}</title>
 
   <link rel="icon" href="{% static 'restaurant/images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preload" href="{% static 'restaurant/fonts/bodoni-moda-500-core.woff2' %}" as="font" type="font/woff2" crossorigin>
   {% block head_extra %}{% endblock %}
-  <link rel="stylesheet" href="{% static 'restaurant/css/fonts.css' %}">
   <link rel="stylesheet" href="{% static 'restaurant/css/styles.css' %}">
   <script src="{% static 'restaurant/js/main.js' %}" defer></script>
 </head>

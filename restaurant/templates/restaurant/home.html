@@ -47,7 +47,16 @@
                 <circle cx="427.5" cy="300" r="120" fill="#e30a17"/>
                 <polygon points="570,225 587.6,275.7 641.3,276.8 597.8,308.3 613.9,359.5 570,330 526.1,359.5 542.2,308.3 498.7,276.8 552.4,275.7" fill="#fff" transform="rotate(90 570 300)"/>
               </svg>
-              <img data-flag-image src="{% static 'restaurant/images/turk-bayragi-kumas.webp' %}" alt="" width="768" height="512" decoding="async">
+              <img
+                data-flag-image
+                src="{% static 'restaurant/images/turk-bayragi-kumas-192.webp' %}"
+                srcset="{% static 'restaurant/images/turk-bayragi-kumas-192.webp' %} 192w, {% static 'restaurant/images/turk-bayragi-kumas-384.webp' %} 384w"
+                sizes="(max-width: 48rem) 7.75rem, 12rem"
+                alt=""
+                width="384"
+                height="256"
+                decoding="async"
+              >
             </span>
             <span class="hero__tribute-copy">
               <small>Cumhuriyetin ışığında</small>
@@ -164,18 +173,27 @@
         </header>
 
         <div class="location-panel">
-          <div class="location-panel__map">
-            <div class="location-panel__map-fallback" aria-hidden="true">
+          <div class="location-panel__map" data-map-container>
+            <div class="location-panel__map-fallback">
               <span class="map-pin"></span>
               <strong>Mimar Sinan Caddesi</strong>
               <span>Merkezefendi / Denizli</span>
+              <button class="location-panel__map-load" type="button" aria-controls="restaurant-map" data-map-load hidden>
+                Haritayı göster
+              </button>
+              <noscript>
+                <a class="location-panel__map-load" href="{{ site.map_link }}" target="_blank" rel="noopener noreferrer">Haritayı aç</a>
+              </noscript>
             </div>
             <iframe
-              src="{{ site.map_embed }}"
+              id="restaurant-map"
+              data-map-frame
+              data-map-src="{{ site.map_embed }}"
               title="Tomris Mini Restoran konum haritası"
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
               allowfullscreen
+              hidden
             ></iframe>
           </div>
           <article class="location-panel__details">
