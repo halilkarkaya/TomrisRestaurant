@@ -4,9 +4,11 @@
   const navigation = document.querySelector("[data-navigation]");
   const navLinks = [...document.querySelectorAll("[data-nav-link]")];
   const sections = [...document.querySelectorAll("[data-section]")];
+  const deferredImages = [...document.querySelectorAll("[data-deferred-src]")];
   const skipLink = document.querySelector(".skip-link");
   const mainContent = document.querySelector("#icerik");
   const flagImage = document.querySelector("[data-flag-image]");
+  const flagTribute = document.querySelector("[data-flag-intro]");
   const desktopNavigation = window.matchMedia("(min-width: 52.01rem)");
 
   const hideUnavailableFlagImage = () => flagImage?.classList.add("is-unavailable");
@@ -14,6 +16,20 @@
   if (flagImage) {
     flagImage.addEventListener("error", hideUnavailableFlagImage, { once: true });
     if (flagImage.complete && flagImage.naturalWidth === 0) hideUnavailableFlagImage();
+  }
+
+  if (flagTribute) {
+    let hasSeenFlagIntro = false;
+
+    try {
+      hasSeenFlagIntro = window.sessionStorage.getItem("tomris:flag-intro-seen") === "1";
+      if (!hasSeenFlagIntro) window.sessionStorage.setItem("tomris:flag-intro-seen", "1");
+    } catch {
+      hasSeenFlagIntro = false;
+    }
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!hasSeenFlagIntro && !prefersReducedMotion) flagTribute.classList.add("is-arriving");
   }
 
   const setHeaderState = () => {
@@ -98,6 +114,56 @@
   desktopNavigation.addEventListener("change", (event) => {
     if (event.matches) setMenuState(false);
   });
+
+  const loadDeferredImage = (image) => {
+    const source = image.dataset.deferredSrc;
+    if (!source) return;
+    image.src = source;
+    delete image.dataset.deferredSrc;
+  };
+
+  const startDeferredImageLoading = () => {
+    if (!deferredImages.length) return;
+
+    if ("IntersectionObserver" in window) {
+      const imageObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            loadDeferredImage(entry.target);
+            imageObserver.unobserve(entry.target);
+          });
+        },
+        { rootMargin: "150px 0px" }
+      );
+
+      deferredImages.forEach((image) => imageObserver.observe(image));
+    } else {
+      deferredImages.forEach(loadDeferredImage);
+    }
+  };
+
+  const scheduleDeferredImageLoading = () => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(startDeferredImageLoading, { timeout: 1500 });
+    } else {
+      window.setTimeout(startDeferredImageLoading, 400);
+    }
+  };
+
+  if (deferredImages.length) {
+    const opensBelowHero = window.location.hash && window.location.hash !== "#anasayfa";
+    if (opensBelowHero) {
+      scheduleDeferredImageLoading();
+    } else {
+      const handleFirstMeaningfulScroll = () => {
+        if (window.scrollY <= 8) return;
+        window.removeEventListener("scroll", handleFirstMeaningfulScroll);
+        scheduleDeferredImageLoading();
+      };
+      window.addEventListener("scroll", handleFirstMeaningfulScroll, { passive: true });
+    }
+  }
 
   if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver(

@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{% block meta_description %}{{ site.brand_name }} {{ site.brand_type }} — {{ site.hero_lead }}{% endblock %}">
+  <meta name="description" content="{% block meta_description %}{{ site.brand_name }} {{ site.brand_type }} — {{ site.story_intro|striptags|truncatechars:155 }}{% endblock %}">
   <meta name="theme-color" content="#080706">
   <title>{% block title %}{{ site.brand_name }} {{ site.brand_type }} | Türk Mutfağı{% endblock %}</title>
 

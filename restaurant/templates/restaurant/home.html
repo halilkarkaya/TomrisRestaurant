@@ -2,26 +2,44 @@
 {% load static %}
 
 {% block head_extra %}
-  <link rel="preload" as="image" href="{% static 'restaurant/images/tomris-ataturk-header.png' %}" fetchpriority="high">
+  {% if site.hero_image %}
+    <link rel="preload" as="image" href="{{ site.hero_image.url }}" fetchpriority="high">
+  {% else %}
+    <link rel="preload" as="image" href="{% static 'restaurant/images/tomris-ataturk-header.webp' %}" type="image/webp" fetchpriority="high">
+  {% endif %}
 {% endblock %}
 
 {% block content %}
     <section class="hero" id="anasayfa" aria-labelledby="hero-title" data-section>
       <div class="hero__media">
-        <img
-          src="{% if site.hero_image %}{{ site.hero_image.url }}{% else %}{% static 'restaurant/images/tomris-ataturk-header.png' %}{% endif %}"
-          width="1672"
-          height="941"
-          alt="{{ site.brand_name }} {{ site.brand_type }} ana sayfa görseli"
-          fetchpriority="high"
-          decoding="async"
-        >
+        {% if site.hero_image %}
+          <img
+            src="{{ site.hero_image.url }}"
+            width="1672"
+            height="941"
+            alt="{{ site.brand_name }} {{ site.brand_type }} ana sayfa görseli"
+            fetchpriority="high"
+            decoding="async"
+          >
+        {% else %}
+          <picture>
+            <source srcset="{% static 'restaurant/images/tomris-ataturk-header.webp' %}" type="image/webp">
+            <img
+              src="{% static 'restaurant/images/tomris-ataturk-header.png' %}"
+              width="1672"
+              height="941"
+              alt="{{ site.brand_name }} {{ site.brand_type }} ana sayfa görseli"
+              fetchpriority="high"
+              decoding="async"
+            >
+          </picture>
+        {% endif %}
       </div>
       <div class="hero__shade" aria-hidden="true"></div>
 
       <div class="hero__inner section-shell">
         <div class="hero__copy">
-          <div class="hero__tribute" aria-label="Türk bayrağı, {{ site.hero_eyebrow }}">
+          <div class="hero__tribute" aria-label="Türk bayrağı, {{ site.hero_eyebrow }}" data-flag-intro>
             <span class="hero__flag" aria-hidden="true">
               <svg class="hero__flag-fallback" viewBox="0 0 900 600" focusable="false">
                 <rect width="900" height="600" fill="#e30a17"/>
@@ -29,7 +47,7 @@
                 <circle cx="427.5" cy="300" r="120" fill="#e30a17"/>
                 <polygon points="570,225 587.6,275.7 641.3,276.8 597.8,308.3 613.9,359.5 570,330 526.1,359.5 542.2,308.3 498.7,276.8 552.4,275.7" fill="#fff" transform="rotate(90 570 300)"/>
               </svg>
-              <img data-flag-image src="{% static 'restaurant/images/turk-bayragi-kumas.webp' %}" alt="" width="768" height="512">
+              <img data-flag-image src="{% static 'restaurant/images/turk-bayragi-kumas.webp' %}" alt="" width="768" height="512" decoding="async">
             </span>
             <span class="hero__tribute-copy">
               <small>Cumhuriyetin ışığında</small>
@@ -40,7 +58,6 @@
             <span>{{ site.hero_title_first }}</span>
             <span>{{ site.hero_title_second }}</span>
           </h1>
-          <p class="hero__lead">{{ site.hero_lead }}</p>
           <div class="hero__actions">
             <a class="button button--primary" href="#menu">Menüyü incele</a>
             <a class="button button--ghost" href="#iletisim">Yol tarifi</a>
@@ -102,7 +119,7 @@
                       <a class="menu-item__link{% if product.image %} menu-item__link--with-image{% endif %}" href="{{ product.get_absolute_url }}" aria-label="{{ product.name }} detaylarını incele">
                         {% if product.image %}
                           <span class="menu-item__image">
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" decoding="async">
+                            <img data-deferred-src="{{ product.image.url }}" alt="{{ product.name }}" width="320" height="240" loading="lazy" decoding="async" fetchpriority="low">
                           </span>
                         {% endif %}
                         <div class="menu-item__heading">

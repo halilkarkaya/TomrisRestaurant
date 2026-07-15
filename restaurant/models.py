@@ -34,8 +34,8 @@ def turkish_slugify(value):
     return slugify(value.translate(TURKISH_SLUG_TRANSLATION))
 
 
-def shrink_uploaded_image(image_field, max_width):
-    """Genişliği max_width pikseli aşan görselleri orantılı olarak küçültür."""
+def shrink_uploaded_image(image_field, max_width, *, convert_to_webp=False):
+    """Yüklenen görseli gerektiğinde küçültür ve hero görsellerini WebP'e dönüştürür."""
     if not image_field:
         return
 
@@ -46,13 +46,20 @@ def shrink_uploaded_image(image_field, max_width):
     except (OSError, ValueError):
         return
 
-    if image.width <= max_width:
+    needs_resize = image.width > max_width
+    if not needs_resize and not convert_to_webp:
         return
 
-    new_height = round(image.height * max_width / image.width)
-    image = image.resize((max_width, new_height), Image.LANCZOS)
+    if needs_resize:
+        new_height = round(image.height * max_width / image.width)
+        image = image.resize((max_width, new_height), Image.LANCZOS)
 
-    if image_format == "WEBP":
+    if convert_to_webp:
+        image_format = "WEBP"
+        if image.mode not in ("RGB", "RGBA"):
+            image = image.convert("RGB")
+        save_kwargs = {"quality": 82, "method": 4}
+    elif image_format == "WEBP":
         save_kwargs = {"quality": 82, "method": 4}
     elif image_format == "PNG":
         save_kwargs = {"optimize": True}
@@ -65,7 +72,8 @@ def shrink_uploaded_image(image_field, max_width):
     buffer = BytesIO()
     image.save(buffer, format=image_format, **save_kwargs)
 
-    file_name = PurePosixPath(image_field.name.replace("\\", "/")).name
+    source_name = PurePosixPath(image_field.name.replace("\\", "/"))
+    file_name = f"{source_name.stem}.webp" if convert_to_webp else source_name.name
     image_field.save(file_name, ContentFile(buffer.getvalue()), save=False)
 
 
@@ -182,6 +190,7 @@ class SiteSettings(models.Model):
     hero_lead = models.CharField(
         "Ana sayfa açıklaması",
         max_length=240,
+        blank=True,
         default="Türk mutfağının tanıdık lezzetleri, aynı sofrada özenle buluşuyor.",
     )
     story_kicker = models.CharField("Hikâye üst başlığı", max_length=100, default="Tomris'in sofrası")
@@ -295,7 +304,11 @@ class SiteSettings(models.Model):
     def save(self, *args, **kwargs):
         self.pk = 1
         if self.hero_image and not self.hero_image._committed:
-            shrink_uploaded_image(self.hero_image, HERO_IMAGE_MAX_WIDTH)
+            shrink_uploaded_image(
+                self.hero_image,
+                HERO_IMAGE_MAX_WIDTH,
+                convert_to_webp=True,
+            )
         super().save(*args, **kwargs)
 
     @classmethod

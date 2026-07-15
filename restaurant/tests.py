@@ -66,21 +66,39 @@ class HomePageTests(TestCase):
         self.assertContains(response, "Bugünün Lezzetleri")
         self.assertContains(response, "Salı – Pazar 12.00 – 22.00")
 
+    def test_home_page_description_is_optional_and_not_shown_in_hero(self):
+        settings = SiteSettings.load()
+        settings.hero_lead = ""
+        settings.full_clean()
+        settings.save()
+
+        response = self.client.get(reverse("restaurant:home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'class="hero__lead"')
+        self.assertTrue(SiteSettings._meta.get_field("hero_lead").blank)
+
     def test_hero_highlights_the_turkish_flag_responsively(self):
         response = self.client.get(reverse("restaurant:home"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "hero__tribute")
+        self.assertContains(response, "data-flag-intro")
         self.assertContains(response, "turk-bayragi-kumas.webp")
         self.assertContains(response, "hero__flag-fallback")
         self.assertContains(response, "data-flag-image")
         self.assertContains(response, "Cumhuriyetin ışığında")
+        self.assertContains(response, "tomris-ataturk-header.webp")
 
     def test_menu_product_links_to_its_detail_page(self):
+        self.visible_product.image = "products/test.jpg"
+        self.visible_product.save(update_fields=("image",))
         response = self.client.get(reverse("restaurant:home"))
 
         self.assertContains(response, self.visible_product.get_absolute_url())
         self.assertIn("test-corbasi", self.visible_product.get_absolute_url())
+        self.assertContains(response, "data-deferred-src")
+        self.assertContains(response, "fetchpriority=\"low\"")
 
     def test_active_product_detail_page_shows_product_information(self):
         response = self.client.get(self.visible_product.get_absolute_url())
@@ -192,6 +210,8 @@ class ImageShrinkTests(TestCase):
 
         with Image.open(site_settings.hero_image.path) as saved:
             self.assertEqual((saved.width, saved.height), (1920, 1080))
+            self.assertEqual(saved.format, "WEBP")
+        self.assertTrue(site_settings.hero_image.name.endswith(".webp"))
 
     def test_resaving_existing_product_does_not_create_duplicate_file(self):
         product = self._create_product(self._jpeg_upload(2400, 1600))
