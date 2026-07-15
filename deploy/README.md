@@ -53,7 +53,7 @@ dokunmadan durur.
 4. DNS yayıldıktan sonra iki alan adını da kapsayan Let's Encrypt sertifikası oluşturun.
 
 Snippet; `www` adresini ana HTTPS adrese yönlendirir, yükleme sınırını 12 MB yapar ve
-`/media/` dosyalarına bir yıllık immutable tarayıcı önbelleği uygular.
+`/static/` ile `/media/` dosyalarına bir yıllık immutable tarayıcı önbelleği uygular.
 
 ## 4. Doğrulama
 
