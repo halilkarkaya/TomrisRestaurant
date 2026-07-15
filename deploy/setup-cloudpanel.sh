@@ -8,7 +8,7 @@ REPO_URL=https://github.com/halilkarkaya/TomrisRestaurant.git
 DOMAIN=tomrisrestoran.com.tr
 WWW_DOMAIN=www.tomrisrestoran.com.tr
 SERVER_IP=166.1.94.195
-PORT=2402
+PORT=8090
 
 if [ "${EUID}" -ne 0 ]; then
     echo "HATA: Bu betigi root olarak calistirin." >&2

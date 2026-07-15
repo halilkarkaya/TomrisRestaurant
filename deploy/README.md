@@ -7,7 +7,7 @@
 | Sunucu | `166.1.94.195` |
 | CloudPanel | `https://166.1.94.195:8443` |
 | Uygulama klasörü | `/var/www/tomris` |
-| Gunicorn | `127.0.0.1:2402` |
+| Gunicorn | `127.0.0.1:8090` |
 | systemd servisi | `tomris` |
 
 ## 1. DNS
@@ -40,13 +40,13 @@ sudo bash deploy/setup-cloudpanel.sh
 
 Betik güçlü bir `DJANGO_SECRET_KEY` üretir, bağımlılıkları kurar, Django üretim
 kontrollerini çalıştırır, migration ve `collectstatic` işlemlerini tamamlar, yönetici
-hesabını sorar ve `tomris` servisini başlatır. 2402 portu doluysa mevcut sürece
+hesabını sorar ve `tomris` servisini başlatır. 8090 portu doluysa mevcut sürece
 dokunmadan durur.
 
 ## 3. CloudPanel
 
 1. **Add Site → Create a Reverse Proxy** ile `tomrisrestoran.com.tr` sitesini ve
-   `http://127.0.0.1:2402` hedefini oluşturun.
+   `http://127.0.0.1:8090` hedefini oluşturun.
 2. Siteye `www.tomrisrestoran.com.tr` alan adını ekleyin.
 3. **Vhost Editor** içinde [cloudpanel-vhost-snippet.conf](cloudpanel-vhost-snippet.conf)
    içeriğini HTTPS `server` bloğuna ekleyin ve yapılandırmayı doğrulayın.
@@ -60,7 +60,7 @@ Snippet; `www` adresini ana HTTPS adrese yönlendirir, yükleme sınırını 12 
 ```bash
 systemctl status tomris --no-pager
 journalctl -u tomris -n 100 --no-pager
-curl -I http://127.0.0.1:2402/ -H 'Host: tomrisrestoran.com.tr'
+curl -I http://127.0.0.1:8090/ -H 'Host: tomrisrestoran.com.tr'
 curl -I https://tomrisrestoran.com.tr/
 curl -I https://www.tomrisrestoran.com.tr/
 ```

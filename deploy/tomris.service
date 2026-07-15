@@ -6,7 +6,7 @@ After=network.target
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/tomris
-ExecStart=/var/www/tomris/venv/bin/gunicorn tomris_site.wsgi:application --bind 127.0.0.1:2402 --workers 3 --timeout 60
+ExecStart=/var/www/tomris/venv/bin/gunicorn tomris_site.wsgi:application --bind 127.0.0.1:8090 --workers 3 --timeout 60
 Restart=always
 RestartSec=5
 
