@@ -118,8 +118,11 @@
   const loadDeferredImage = (image) => {
     const source = image.dataset.deferredSrc;
     if (!source) return;
+    const sourceSet = image.dataset.deferredSrcset;
+    if (sourceSet) image.srcset = sourceSet;
     image.src = source;
     delete image.dataset.deferredSrc;
+    delete image.dataset.deferredSrcset;
   };
 
   const startDeferredImageLoading = () => {

@@ -1,37 +1,52 @@
 #!/usr/bin/env bash
-# CloudPanel kurulu sunucu icin Tomris ilk kurulumu - root olarak BIR KERE calistir.
-# nginx / SSL / guvenlik duvarini CloudPanel yonetir; bu script onlara DOKUNMAZ.
-# (Panelsiz ciplak Ubuntu icin setup.sh kullanilir.)
-#
-# On kosullar (bu scripti calistirmadan ONCE):
-#   1) db.sqlite3 ve media/ bu bilgisayardan scp ile /var/www/tomris/ altina kopyalanmis olmali.
-#   2) deploy/.env.production dosyasi /var/www/tomris/.env olarak yerlestirilip SECRET_KEY doldurulmus olmali.
+# Tomris Restoran'i CloudPanel sunucusuna temiz veritabaniyla ilk kez kurar.
+# CloudPanel nginx, alan adi ve SSL'i yonetir; bu betik uygulamayi ve systemd servisini kurar.
 set -euo pipefail
 
 APP_DIR=/var/www/tomris
 REPO_URL=https://github.com/halilkarkaya/TomrisRestaurant.git
-DOMAIN=ayse.nedenkapatilsin.com.tr
+DOMAIN=tomrisrestoran.com.tr
+WWW_DOMAIN=www.tomrisrestoran.com.tr
+SERVER_IP=166.1.94.195
 PORT=2402
 
-echo "==> Sistem paketleri (nginx/certbot/ufw YOK - onlar CloudPanel'in isi)"
-apt update
-apt install -y python3-venv python3-pip git
+if [ "${EUID}" -ne 0 ]; then
+    echo "HATA: Bu betigi root olarak calistirin." >&2
+    exit 1
+fi
 
-echo "==> Proje klasoru"
-mkdir -p "$APP_DIR"
+echo "==> Sistem paketleri"
+apt update
+apt install -y python3-venv python3-pip git curl
+
+if ss -H -ltn "sport = :$PORT" | grep -q .; then
+    echo "HATA: 127.0.0.1:$PORT portu kullanimda. Mevcut surece dokunulmadi." >&2
+    exit 1
+fi
+
+echo "==> Proje"
+mkdir -p "$(dirname "$APP_DIR")"
 if [ ! -d "$APP_DIR/.git" ]; then
-    git clone "$REPO_URL" "$APP_DIR"
+    git clone --branch main "$REPO_URL" "$APP_DIR"
 fi
 cd "$APP_DIR"
 
 if [ ! -f .env ]; then
-    echo "HATA: $APP_DIR/.env bulunamadi." >&2
-    echo "deploy/.env.production'i .env olarak kopyalayip SECRET_KEY'i doldurun." >&2
+    cp deploy/.env.production .env
+    SECRET_VALUE=$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))')
+    sed -i "s|BURAYA-UZUN-RASTGELE-BIR-DEGER-YAZIN|$SECRET_VALUE|" .env
+    chmod 600 .env
+fi
+
+if grep -q "BURAYA-UZUN-RASTGELE-BIR-DEGER-YAZIN" .env; then
+    echo "HATA: .env icindeki DJANGO_SECRET_KEY guvenli bir degerle degistirilmemis." >&2
     exit 1
 fi
 
-if [ ! -f db.sqlite3 ]; then
-    echo "UYARI: db.sqlite3 yok; bos veritabaniyla (sadece ornek urunlerle) devam edilir."
+if [ -f db.sqlite3 ]; then
+    echo "UYARI: db.sqlite3 zaten var; veri kaybini onlemek icin mevcut dosya korunacak."
+else
+    echo "==> Temiz veritabani ornek menu verileriyle olusturulacak"
 fi
 mkdir -p media logs
 
@@ -41,25 +56,39 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "==> Migrasyon ve statik dosyalar"
+echo "==> Django kontrolleri, migrasyon ve statik dosyalar"
+python manage.py check --deploy
 python manage.py migrate
 python manage.py collectstatic --noinput
+
+if ! python manage.py shell -c "from django.contrib.auth import get_user_model; raise SystemExit(0 if get_user_model().objects.filter(is_superuser=True).exists() else 1)"; then
+    if [ -t 0 ]; then
+        echo "==> Yonetici hesabi"
+        python manage.py createsuperuser
+    else
+        echo "UYARI: Yonetici hesabi olusturulmadi. Daha sonra su komutu calistirin:"
+        echo "  cd $APP_DIR && source venv/bin/activate && python manage.py createsuperuser"
+    fi
+fi
 deactivate
 
-echo "==> Dosya sahipligi (gunicorn'un db ve media'ya yazabilmesi icin)"
+echo "==> Dosya sahipligi ve systemd servisi"
 chown -R www-data:www-data "$APP_DIR"
-
-echo "==> systemd servisi"
 cp deploy/tomris.service /etc/systemd/system/tomris.service
 systemctl daemon-reload
 systemctl enable --now tomris
 
+sleep 2
+curl --fail --silent --show-error \
+    --header "Host: $DOMAIN" \
+    --header "X-Forwarded-Proto: https" \
+    --output /dev/null \
+    "http://127.0.0.1:$PORT/"
+
 echo ""
-echo "Sunucu tarafi tamam: gunicorn 127.0.0.1:$PORT'de calisiyor."
-echo "Servis durumu: systemctl status tomris"
-echo ""
-echo "Simdi CloudPanel panelinde (https://50.114.185.125:8443) su 3 adim kaldi:"
-echo "  1) Add Site -> Create a Reverse Proxy: $DOMAIN, hedef http://127.0.0.1:$PORT"
-echo "  2) Site -> Vhost Editor: location /media/ blogu ekle (alias $APP_DIR/media/),"
-echo "     client_max_body_size 12M yap"
-echo "  3) DNS yayilinca Site -> SSL/TLS -> New Let's Encrypt Certificate"
+echo "Uygulama hazir: http://127.0.0.1:$PORT"
+echo "CloudPanel: https://$SERVER_IP:8443"
+echo "1) Reverse Proxy sitesi: $DOMAIN -> http://127.0.0.1:$PORT"
+echo "2) Alan adi olarak $WWW_DOMAIN adresini ekleyin."
+echo "3) deploy/cloudpanel-vhost-snippet.conf icerigini Vhost Editor'a ekleyin."
+echo "4) DNS yayilinca iki alan adini kapsayan Let's Encrypt sertifikasi olusturun."

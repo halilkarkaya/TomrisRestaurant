@@ -119,7 +119,16 @@
                       <a class="menu-item__link{% if product.image %} menu-item__link--with-image{% endif %}" href="{{ product.get_absolute_url }}" aria-label="{{ product.name }} detaylarını incele">
                         {% if product.image %}
                           <span class="menu-item__image">
-                            <img data-deferred-src="{{ product.image.url }}" alt="{{ product.name }}" width="320" height="240" loading="lazy" decoding="async" fetchpriority="low">
+                            <img
+                              data-deferred-src="{% if product.image_480 %}{{ product.image_480.url }}{% else %}{{ product.image.url }}{% endif %}"
+                              {% if product.image_480 %}data-deferred-srcset="{{ product.image_480.url }} 1x, {% if product.image_960 %}{{ product.image_960.url }}{% else %}{{ product.image.url }}{% endif %} 2x"{% endif %}
+                              alt="{{ product.name }}"
+                              width="320"
+                              height="240"
+                              loading="lazy"
+                              decoding="async"
+                              fetchpriority="low"
+                            >
                           </span>
                         {% endif %}
                         <div class="menu-item__heading">

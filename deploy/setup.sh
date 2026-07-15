@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-# Tomris ilk kurulum scripti - mevcut nedenkapatilsin sunucusunda root/sudo ile BIR KERE calistir.
+# Tomris ilk kurulum scripti - panelsiz Ubuntu sunucusunda root/sudo ile BIR KERE calistir.
 #
 # On kosullar (bu scripti calistirmadan ONCE):
-#   1) DNS: ayse.nedenkapatilsin.com.tr icin A kaydi bu sunucunun IP'sine yayilmis olmali.
+#   1) DNS: tomrisrestoran.com.tr ve www adresleri bu sunucuya yayilmis olmali.
 #   2) Kod: /var/www/tomris klasorune depo git clone edilmis olmali.
-#   3) Veri: db.sqlite3 ve media/ bu bilgisayardan scp ile /var/www/tomris/ altina kopyalanmis olmali.
+#   3) Temiz kurulumda eski db.sqlite3 ve media/ dosyalari kopyalanmamis olmali.
 #   4) Ayar: deploy/.env.production dosyasi /var/www/tomris/.env olarak yerlestirilmis olmali.
 # Ayrinti icin deploy/README.md dosyasina bakin.
 set -euo pipefail
 
 APP_DIR=/var/www/tomris
 REPO_URL=https://github.com/halilkarkaya/TomrisRestaurant.git
-DOMAIN=ayse.nedenkapatilsin.com.tr
+DOMAIN=tomrisrestoran.com.tr
+WWW_DOMAIN=www.tomrisrestoran.com.tr
 
 echo "==> Proje klasoru"
 mkdir -p "$APP_DIR"
@@ -58,7 +59,7 @@ nginx -t
 systemctl reload nginx
 
 echo "==> SSL sertifikasi (DNS bu sunucuya yayilmis olmali)"
-certbot --nginx -d "$DOMAIN"
+certbot --nginx -d "$DOMAIN" -d "$WWW_DOMAIN"
 
 echo ""
 echo "Kurulum tamamlandi: https://$DOMAIN"

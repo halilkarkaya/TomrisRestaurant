@@ -3,6 +3,7 @@ from io import BytesIO
 from tempfile import mkdtemp
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -13,6 +14,7 @@ from .models import MenuCategory, Product, SiteSettings
 
 class HomePageTests(TestCase):
     def setUp(self):
+        cache.clear()
         Product.objects.all().delete()
         self.soup_category = MenuCategory.objects.get(slug="soups")
         self.visible_product = Product.objects.create(
@@ -117,6 +119,9 @@ class HomePageTests(TestCase):
 
 
 class ContactInfoTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
     def test_phone_href_normalizes_turkish_numbers(self):
         site_settings = SiteSettings.load()
 
@@ -174,6 +179,9 @@ class ErrorPageTests(TestCase):
 
 @override_settings(MEDIA_ROOT=mkdtemp(prefix="tomris-test-media-"))
 class ImageShrinkTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
     def _jpeg_upload(self, width, height):
         buffer = BytesIO()
         Image.new("RGB", (width, height), "#8f2428").save(buffer, format="JPEG")
@@ -192,12 +200,73 @@ class ImageShrinkTests(TestCase):
 
         with Image.open(product.image.path) as saved:
             self.assertEqual((saved.width, saved.height), (1200, 800))
+            self.assertEqual(saved.format, "WEBP")
+        with Image.open(product.image_480.path) as small:
+            self.assertEqual((small.width, small.height), (480, 320))
+            self.assertEqual(small.format, "WEBP")
+        with Image.open(product.image_960.path) as medium:
+            self.assertEqual((medium.width, medium.height), (960, 640))
+            self.assertEqual(medium.format, "WEBP")
 
     def test_small_product_image_is_kept_as_is(self):
+        product = self._create_product(self._jpeg_upload(400, 250))
+
+        with Image.open(product.image.path) as saved:
+            self.assertEqual((saved.width, saved.height), (400, 250))
+            self.assertEqual(saved.format, "WEBP")
+        self.assertFalse(product.image_480)
+        self.assertFalse(product.image_960)
+
+    def test_medium_product_image_gets_only_smaller_variant(self):
         product = self._create_product(self._jpeg_upload(800, 500))
 
         with Image.open(product.image.path) as saved:
             self.assertEqual((saved.width, saved.height), (800, 500))
+        with Image.open(product.image_480.path) as small:
+            self.assertEqual((small.width, small.height), (480, 300))
+        self.assertFalse(product.image_960)
+
+    def test_portrait_product_image_preserves_aspect_ratio(self):
+        product = self._create_product(self._jpeg_upload(1600, 2400))
+
+        with Image.open(product.image.path) as saved:
+            self.assertEqual((saved.width, saved.height), (1200, 1800))
+        with Image.open(product.image_480.path) as small:
+            self.assertEqual((small.width, small.height), (480, 720))
+        with Image.open(product.image_960.path) as medium:
+            self.assertEqual((medium.width, medium.height), (960, 1440))
+
+    def test_exif_orientation_is_applied_before_resizing(self):
+        buffer = BytesIO()
+        exif = Image.Exif()
+        exif[274] = 6
+        Image.new("RGB", (1600, 2400), "#8f2428").save(
+            buffer,
+            format="JPEG",
+            exif=exif,
+        )
+        product = self._create_product(
+            SimpleUploadedFile(
+                "exif-foto.jpg",
+                buffer.getvalue(),
+                content_type="image/jpeg",
+            )
+        )
+
+        with Image.open(product.image.path) as saved:
+            self.assertEqual((saved.width, saved.height), (1200, 800))
+
+    def test_responsive_image_urls_render_on_home_and_detail_pages(self):
+        product = self._create_product(self._jpeg_upload(2400, 1600))
+
+        home_response = self.client.get(reverse("restaurant:home"))
+        detail_response = self.client.get(product.get_absolute_url())
+
+        self.assertContains(home_response, "data-deferred-srcset")
+        self.assertContains(home_response, product.image_480.url)
+        self.assertContains(home_response, product.image_960.url)
+        self.assertContains(detail_response, "srcset=")
+        self.assertContains(detail_response, product.image_960.url)
 
     def test_large_hero_image_is_shrunk_on_save(self):
         site_settings = SiteSettings.load()
@@ -222,6 +291,49 @@ class ImageShrinkTests(TestCase):
         product.save()
 
         self.assertEqual(product.image.name, stored_name)
+
+
+class PublicPageCacheTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        Product.objects.all().delete()
+        self.product = Product.objects.create(
+            name="Cache Çorbası",
+            category=MenuCategory.objects.get(slug="soups"),
+            description="İlk açıklama",
+            price=Decimal("100.00"),
+            is_active=True,
+        )
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_home_page_is_cached_for_sixty_seconds(self):
+        url = reverse("restaurant:home")
+        first_response = self.client.get(url)
+        Product.objects.filter(pk=self.product.pk).update(name="Değişen Çorba")
+        cached_response = self.client.get(url)
+
+        self.assertEqual(first_response.headers["Cache-Control"], "max-age=60")
+        self.assertContains(cached_response, "Cache Çorbası")
+        self.assertNotContains(cached_response, "Değişen Çorba")
+
+        cache.clear()
+        refreshed_response = self.client.get(url)
+        self.assertContains(refreshed_response, "Değişen Çorba")
+
+    def test_product_detail_page_is_cached_for_sixty_seconds(self):
+        url = self.product.get_absolute_url()
+        self.client.get(url)
+        Product.objects.filter(pk=self.product.pk).update(description="Yeni açıklama")
+        cached_response = self.client.get(url)
+
+        self.assertContains(cached_response, "İlk açıklama")
+        self.assertNotContains(cached_response, "Yeni açıklama")
+
+        cache.clear()
+        refreshed_response = self.client.get(url)
+        self.assertContains(refreshed_response, "Yeni açıklama")
 
 
 @override_settings(MEDIA_ROOT=mkdtemp(prefix="tomris-test-media-"))

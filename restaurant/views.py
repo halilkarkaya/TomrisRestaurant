@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import cache_page
 
 from .models import MenuCategory, Product, SiteSettings, turkish_slugify
 
 
+@cache_page(settings.PUBLIC_PAGE_CACHE_SECONDS)
 def home(request):
     visible_products = Product.objects.filter(is_active=True).order_by("sort_order", "name")
     categories = (
@@ -24,6 +27,7 @@ def home(request):
     )
 
 
+@cache_page(settings.PUBLIC_PAGE_CACHE_SECONDS)
 def product_detail(request, pk, slug):
     product = get_object_or_404(
         Product.objects.select_related("category"),

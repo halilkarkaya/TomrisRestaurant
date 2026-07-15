@@ -33,9 +33,9 @@ Yönetim panelindeki **Ürünler** bölümünden:
 
 İlk `migrate` işleminde mevcut 10 menü ürünü otomatik olarak eklenir.
 
-Yüklenen ürün fotoğrafları kayıt sırasında en fazla 1200 piksel genişliğe
-(ana sayfa görseli 1920 piksele) otomatik olarak küçültülür; böylece
-telefonla çekilen büyük fotoğraflar siteyi yavaşlatmaz.
+Yüklenen ürün fotoğrafları kayıt sırasında WebP biçimine dönüştürülür; ana dosya en
+fazla 1200 piksel genişlikte, uygun görseller için 480 ve 960 piksel responsive
+varyantlarla saklanır. Ana sayfa görseli en fazla 1920 piksele küçültülür.
 
 ## İletişim ve sosyal medya
 

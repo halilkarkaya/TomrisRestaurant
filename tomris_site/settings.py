@@ -34,7 +34,7 @@ ALLOWED_HOSTS = [
 ]
 
 # HTTPS altında admin girişi ve form gönderimleri için gereklidir (Django 4+).
-# Örnek: https://ayse.nedenkapatilsin.com.tr
+# Örnek: https://tomrisrestoran.com.tr
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
@@ -85,6 +85,16 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+PUBLIC_PAGE_CACHE_SECONDS = int(os.getenv("DJANGO_PUBLIC_PAGE_CACHE_SECONDS", "60"))
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "tomris-public-pages",
+        "TIMEOUT": PUBLIC_PAGE_CACHE_SECONDS,
+        "KEY_PREFIX": "tomris",
     }
 }
 

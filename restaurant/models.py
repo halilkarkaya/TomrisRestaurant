@@ -9,6 +9,7 @@ from django.utils.text import slugify
 from PIL import Image, ImageOps
 
 PRODUCT_IMAGE_MAX_WIDTH = 1200
+PRODUCT_IMAGE_VARIANT_WIDTHS = (480, 960)
 HERO_IMAGE_MAX_WIDTH = 1920
 
 
@@ -77,6 +78,55 @@ def shrink_uploaded_image(image_field, max_width, *, convert_to_webp=False):
     image_field.save(file_name, ContentFile(buffer.getvalue()), save=False)
 
 
+def _webp_content(image, max_width):
+    """Return a WebP copy capped at max_width without upscaling."""
+    if image.width > max_width:
+        new_height = round(image.height * max_width / image.width)
+        output = image.resize((max_width, new_height), Image.LANCZOS)
+    else:
+        output = image.copy()
+
+    if output.mode not in ("RGB", "RGBA"):
+        output = output.convert("RGBA" if "transparency" in output.info else "RGB")
+
+    buffer = BytesIO()
+    output.save(buffer, format="WEBP", quality=82, method=4)
+    return ContentFile(buffer.getvalue())
+
+
+def create_product_image_variants(product):
+    """Normalize a new product upload and create responsive WebP variants."""
+    try:
+        source = Image.open(product.image)
+        source = ImageOps.exif_transpose(source)
+        source.load()
+    except (OSError, ValueError):
+        return False
+
+    source_name = PurePosixPath(product.image.name.replace("\\", "/"))
+    stem = source_name.stem
+
+    product.image.save(
+        f"{stem}.webp",
+        _webp_content(source, PRODUCT_IMAGE_MAX_WIDTH),
+        save=False,
+    )
+    product.image_480 = ""
+    product.image_960 = ""
+
+    for width in PRODUCT_IMAGE_VARIANT_WIDTHS:
+        if source.width <= width:
+            continue
+        variant_field = getattr(product, f"image_{width}")
+        variant_field.save(
+            f"{stem}-{width}.webp",
+            _webp_content(source, width),
+            save=False,
+        )
+
+    return True
+
+
 def turkish_phone_digits(value):
     """'0258 263 00 00' gibi bir girdiyi '902582630000' biçimine çevirir."""
     digits = "".join(ch for ch in value if ch.isdigit())
@@ -131,6 +181,16 @@ class Product(models.Model):
         blank=True,
         help_text="Yatay veya kare, net bir yemek fotoğrafı yükleyin.",
     )
+    image_480 = models.ImageField(
+        upload_to="products/variants/",
+        blank=True,
+        editable=False,
+    )
+    image_960 = models.ImageField(
+        upload_to="products/variants/",
+        blank=True,
+        editable=False,
+    )
     description = models.CharField("Açıklama", max_length=240, blank=True)
     ingredients = models.TextField("İçindekiler", blank=True)
     allergen_info = models.CharField("Alerjen bilgisi", max_length=200, blank=True)
@@ -160,9 +220,42 @@ class Product(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.image and not self.image._committed:
-            shrink_uploaded_image(self.image, PRODUCT_IMAGE_MAX_WIDTH)
+        old_files = {}
+        if self.pk:
+            old_files = (
+                Product.objects.filter(pk=self.pk)
+                .values("image", "image_480", "image_960")
+                .first()
+                or {}
+            )
+
+        has_new_upload = bool(self.image and not self.image._committed)
+        image_was_removed = bool(old_files.get("image") and not self.image)
+
+        if has_new_upload:
+            create_product_image_variants(self)
+        elif image_was_removed:
+            self.image_480 = ""
+            self.image_960 = ""
+
+        if kwargs.get("update_fields") is not None and (
+            has_new_upload or image_was_removed
+        ):
+            kwargs["update_fields"] = tuple(
+                set(kwargs["update_fields"]) | {"image", "image_480", "image_960"}
+            )
+
         super().save(*args, **kwargs)
+
+        current_files = {
+            self.image.name if self.image else "",
+            self.image_480.name if self.image_480 else "",
+            self.image_960.name if self.image_960 else "",
+        }
+        storage = self._meta.get_field("image").storage
+        for old_name in old_files.values():
+            if old_name and old_name not in current_files:
+                storage.delete(old_name)
 
     def get_absolute_url(self):
         return reverse(

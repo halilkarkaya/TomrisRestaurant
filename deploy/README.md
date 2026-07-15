@@ -1,118 +1,81 @@
-# Tomris Restoran — Yayın (Deploy) Kılavuzu
-
-Site, mevcut **nedenkapatilsin.com.tr** sunucusuna **ikinci uygulama** olarak,
-`ayse.nedenkapatilsin.com.tr` alt alan adıyla kurulur. Nedenkapatilsin'e dokunulmaz.
+# Tomris Restoran — CloudPanel yayın kılavuzu
 
 | Ayar | Değer |
-|------|-------|
-| Alan adı | `ayse.nedenkapatilsin.com.tr` |
+|---|---|
+| Ana adres | `https://tomrisrestoran.com.tr` |
+| Yönlendirilecek adres | `https://www.tomrisrestoran.com.tr` |
+| Sunucu | `166.1.94.195` |
+| CloudPanel | `https://166.1.94.195:8443` |
 | Uygulama klasörü | `/var/www/tomris` |
-| Gunicorn portu | `127.0.0.1:2402` |
+| Gunicorn | `127.0.0.1:2402` |
 | systemd servisi | `tomris` |
-| nginx site | `/etc/nginx/sites-available/tomris` |
 
-nedenkapatilsin `8090` portunu ve `nedenkapatilsin` servisini kullanır; Tomris `2402`
-portunu ve `tomris` servisini kullanır. Çakışma yoktur.
+## 1. DNS
 
----
+Alan adı panelinde şu kayıtları oluşturun:
 
-## 1. Bu bilgisayarda: kodu GitHub'a yükle ✅ (yapıldı)
-
-Kod şu depoya gönderildi: **https://github.com/halilkarkaya/TomrisRestaurant**
-(`db.sqlite3` ve `.env` `.gitignore` sayesinde **gönderilmedi** — veriyi 3. adımda
-`scp` ile ayrıca taşıyacağız). Sonraki güncellemeleri `git push` ile gönderin.
-
-## 2. DNS: alt alan adını sunucuya yönlendir
-
-Alan adı yönetim panelinizde (nedenkapatilsin.com.tr'nin DNS'i) bir **A kaydı** ekleyin:
-
-```
-Tip: A    Ad: ayse    Değer: <SUNUCU_IP>
+```text
+@     A       166.1.94.195
+www   CNAME   tomrisrestoran.com.tr
 ```
 
-Yayılmayı doğrulayın (sunucunun IP'sini göstermeli):
+İki adres de `166.1.94.195` sonucunu vermeden SSL adımına geçmeyin:
 
 ```bash
-dig +short ayse.nedenkapatilsin.com.tr
+dig +short tomrisrestoran.com.tr
+dig +short www.tomrisrestoran.com.tr
 ```
 
-## 3. Sunucuda: klonla, veriyi taşı, .env yerleştir
+## 2. Temiz sunucu kurulumu
+
+CloudPanel sunucusuna root ile bağlanın. Eski `db.sqlite3` veya `media/` klasörünü
+kopyalamayın; migration'lar temiz veritabanını örnek menü ürünleriyle oluşturur.
 
 ```bash
-# Sunucuda (root/sudo):
-sudo mkdir -p /var/www/tomris
-sudo git clone https://github.com/halilkarkaya/TomrisRestaurant.git /var/www/tomris
-```
-
-Bu bilgisayardan **canlı veriyi** ve **görselleri** sunucuya kopyalayın
-(proje klasöründen çalıştırın):
-
-```powershell
-scp db.sqlite3 <KULLANICI>@<SUNUCU_IP>:/var/www/tomris/
-scp -r media    <KULLANICI>@<SUNUCU_IP>:/var/www/tomris/
-```
-
-`.env` dosyasını hazırlayıp yerleştirin:
-
-```bash
-# Sunucuda:
-cd /var/www/tomris
-sudo cp deploy/.env.production .env
-# SECRET_KEY üretin ve .env içine yazın:
-python3 -c "import secrets; print(secrets.token_urlsafe(50))"
-sudo nano .env      # DJANGO_SECRET_KEY satırını doldurun
-```
-
-## 4. Sunucuda: kurulumu çalıştır
-
-**Bu sunucu CloudPanel kullanıyor** (nginx/SSL/güvenlik duvarını panel yönetir):
-
-```bash
+sudo mkdir -p /var/www
+sudo git clone --branch main https://github.com/halilkarkaya/TomrisRestaurant.git /var/www/tomris
 cd /var/www/tomris
 sudo bash deploy/setup-cloudpanel.sh
 ```
 
-Bu script; sanal ortamı kurar, bağımlılıkları yükler, `migrate` + `collectstatic`
-çalıştırır, dosya sahipliğini `www-data`'ya verir ve `tomris` servisini başlatır
-(gunicorn `127.0.0.1:2402`). nginx/SSL'e **dokunmaz** — onları CloudPanel'de yaparız.
+Betik güçlü bir `DJANGO_SECRET_KEY` üretir, bağımlılıkları kurar, Django üretim
+kontrollerini çalıştırır, migration ve `collectstatic` işlemlerini tamamlar, yönetici
+hesabını sorar ve `tomris` servisini başlatır. 2402 portu doluysa mevcut sürece
+dokunmadan durur.
 
-Ardından CloudPanel panelinde (`https://50.114.185.125:8443`):
-1. **Add Site → Create a Reverse Proxy:** `ayse.nedenkapatilsin.com.tr`, hedef `http://127.0.0.1:2402`
-2. **Site → Vhost Editor:** `location /media/ { alias /var/www/tomris/media/; }` bloğunu ekleyin, `client_max_body_size 12M;` yapın
-3. **Site → SSL/TLS → New Let's Encrypt Certificate** (DNS yayıldıktan sonra)
+## 3. CloudPanel
 
-> Panelsiz çıplak Ubuntu sunucular için bunun yerine `sudo bash deploy/setup.sh`
-> kullanılır (nginx bloğunu + certbot'u kendisi ekler).
+1. **Add Site → Create a Reverse Proxy** ile `tomrisrestoran.com.tr` sitesini ve
+   `http://127.0.0.1:2402` hedefini oluşturun.
+2. Siteye `www.tomrisrestoran.com.tr` alan adını ekleyin.
+3. **Vhost Editor** içinde [cloudpanel-vhost-snippet.conf](cloudpanel-vhost-snippet.conf)
+   içeriğini HTTPS `server` bloğuna ekleyin ve yapılandırmayı doğrulayın.
+4. DNS yayıldıktan sonra iki alan adını da kapsayan Let's Encrypt sertifikası oluşturun.
 
-## 5. Yayın sonrası
+Snippet; `www` adresini ana HTTPS adrese yönlendirir, yükleme sınırını 12 MB yapar ve
+`/media/` dosyalarına bir yıllık immutable tarayıcı önbelleği uygular.
 
-- **Site:** https://ayse.nedenkapatilsin.com.tr
-- **Yönetim:** https://ayse.nedenkapatilsin.com.tr/admin/
-- Servis durumu: `systemctl status tomris`
-- Loglar: `journalctl -u tomris -f`
-
-### Önemli: admin şifresini güçlendirin
-Canlı veritabanı `tomris` admin hesabını taşıyor ve mevcut şifresi zayıf.
-Yayına aldıktan sonra admin panelinden **güçlü bir şifreyle** değiştirin
-(sağ üst → şifre değiştir), ya da sunucuda:
+## 4. Doğrulama
 
 ```bash
-cd /var/www/tomris && source venv/bin/activate
-python manage.py changepassword tomris
+systemctl status tomris --no-pager
+journalctl -u tomris -n 100 --no-pager
+curl -I http://127.0.0.1:2402/ -H 'Host: tomrisrestoran.com.tr'
+curl -I https://tomrisrestoran.com.tr/
+curl -I https://www.tomrisrestoran.com.tr/
 ```
 
-### HSTS'i açın (isteğe bağlı, site HTTPS'te sorunsuz çalıştıktan sonra)
-`.env` içinde `DJANGO_SECURE_HSTS_SECONDS=31536000` yapıp `sudo systemctl restart tomris`.
-
----
+Beklenen davranış: ana adres `200`, HTTP ve `www` tek adımda
+`https://tomrisrestoran.com.tr` adresine `301` döndürür. `/admin/`, statik dosyalar ve
+yeni yüklenen ürün görselleri ayrıca kontrol edilmelidir.
 
 ## Sonraki güncellemeler
 
-Kodda değişiklik yapıp GitHub'a push ettikten sonra, sunucuda:
+Kod `main` dalına gönderildikten sonra sunucuda:
 
 ```bash
-cd /var/www/tomris && sudo bash deploy/deploy.sh
+cd /var/www/tomris
+sudo bash deploy/deploy.sh
 ```
 
-> Not: `deploy.sh` kodu `git pull` ile günceller; `db.sqlite3` sunucuda kalır
-> (git'e dahil değildir), böylece canlı içerik korunur.
+Güncelleme betiği veritabanını ve media dosyalarını silmez.
