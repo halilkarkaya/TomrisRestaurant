@@ -375,8 +375,10 @@ class ImageShrinkTests(TestCase):
         self.assertContains(home_response, "data-deferred-srcset")
         self.assertContains(home_response, product.image_480.url)
         self.assertContains(home_response, product.image_960.url)
+        self.assertContains(home_response, f"{product.image_480.url}?v=")
         self.assertContains(detail_response, "srcset=")
         self.assertContains(detail_response, product.image_960.url)
+        self.assertContains(detail_response, f"{product.image_960.url}?v=")
 
     def test_large_hero_image_is_shrunk_on_save(self):
         site_settings = SiteSettings.load()

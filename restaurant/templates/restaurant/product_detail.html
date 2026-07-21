@@ -27,8 +27,8 @@
             {% if site.show_product_images and product.image %}
               <figure class="product-detail__visual">
                 <img
-                  src="{% if product.image_960 %}{{ product.image_960.url }}{% else %}{{ product.image.url }}{% endif %}"
-                  {% if product.image_960 %}srcset="{% if product.image_480 %}{{ product.image_480.url }} 480w, {% endif %}{{ product.image_960.url }} 960w" sizes="(max-width: 52rem) calc(100vw - 2rem), 56rem"{% endif %}
+                  src="{% if product.image_960 %}{{ product.image_960.url }}{% else %}{{ product.image.url }}{% endif %}?v={{ product.updated_at|date:'U' }}"
+                  {% if product.image_960 %}srcset="{% if product.image_480 %}{{ product.image_480.url }}?v={{ product.updated_at|date:'U' }} 480w, {% endif %}{{ product.image_960.url }}?v={{ product.updated_at|date:'U' }} 960w" sizes="(max-width: 52rem) calc(100vw - 2rem), 56rem"{% endif %}
                   alt="{{ product.name }}"
                   width="900"
                   height="600"
