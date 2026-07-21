@@ -3,7 +3,9 @@
 # Kullanim: sudo bash deploy/update.sh
 # Testlerle: sudo RUN_TESTS=1 bash deploy/update.sh
 set -Eeuo pipefail
-umask 027
+# Git'in guncelledigi uygulama dosyalari www-data tarafindan okunabilmeli.
+# Gizli veritabani yedekleri asagida ayrica 600 yapilir.
+umask 022
 
 APP_DIR=/var/www/tomris
 BRANCH=main
@@ -88,7 +90,15 @@ echo "==> Migrasyonlar"
 echo "==> Statik dosyalar"
 "$PYTHON" manage.py collectstatic --noinput
 
-echo "==> Yazilabilir klasor izinleri"
+echo "==> Dosya ve yazilabilir klasor izinleri"
+# Onceki surumun 027 umask ile root:root 640 olusturdugu Python dosyalarini
+# da onar. Kaynak kodu Gunicorn, static/media dosyalarini nginx okuyabilmeli.
+chmod a+rx "$APP_DIR"
+for public_path in tomris_site restaurant templates staticfiles media; do
+    if [ -e "$APP_DIR/$public_path" ]; then
+        chmod -R a+rX "$APP_DIR/$public_path"
+    fi
+done
 install -d -o www-data -g www-data "$APP_DIR/media" "$APP_DIR/logs"
 if [ -f "$APP_DIR/db.sqlite3" ]; then
     chown www-data:www-data "$APP_DIR/db.sqlite3"
