@@ -112,6 +112,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+USE_MANIFEST_STATIC = (
+    not DEBUG and os.getenv("DJANGO_USE_MANIFEST_STATIC", "1") == "1"
+)
 
 # Manifest tabanlı statik depolama yalnızca canlıda (collectstatic sonrası
 # manifest dosyası mevcutken) kullanılır; geliştirme ve testte varsayılan kalır.
@@ -120,7 +123,7 @@ STORAGES = {
     "staticfiles": {
         "BACKEND": (
             "whitenoise.storage.CompressedManifestStaticFilesStorage"
-            if not DEBUG
+            if USE_MANIFEST_STATIC
             else "django.contrib.staticfiles.storage.StaticFilesStorage"
         )
     },

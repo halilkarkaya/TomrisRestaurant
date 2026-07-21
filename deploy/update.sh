@@ -74,7 +74,12 @@ echo "==> Django kontrolleri"
 "$PYTHON" manage.py check --deploy
 if [ "$RUN_TESTS" = "1" ]; then
     echo "==> Django testleri"
-    "$PYTHON" manage.py test --noinput
+    # Canli .env dosyasindaki HTTPS yonlendirmesi Django test istemcisinin
+    # tum HTTP isteklerini 301'e cevirmemeli. Bu ayar yalnizca test komutu
+    # boyunca kapatilir; calisan servisin uretim ayarlari degismez.
+    DJANGO_SECURE_SSL_REDIRECT=0 \
+        DJANGO_USE_MANIFEST_STATIC=0 \
+        "$PYTHON" manage.py test --noinput
 fi
 
 echo "==> Migrasyonlar"
