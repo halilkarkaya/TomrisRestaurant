@@ -151,6 +151,8 @@
     const source = image.dataset.deferredSrc;
     if (!source) return;
     const sourceSet = image.dataset.deferredSrcset;
+    const bounds = image.getBoundingClientRect();
+    image.fetchPriority = bounds.bottom >= 0 && bounds.top <= window.innerHeight ? "auto" : "low";
     if (sourceSet) image.srcset = sourceSet;
     image.src = source;
     delete image.dataset.deferredSrc;
@@ -163,13 +165,19 @@
     if ("IntersectionObserver" in window) {
       const imageObserver = new IntersectionObserver(
         (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            loadDeferredImage(entry.target);
-            imageObserver.unobserve(entry.target);
-          });
+          entries
+            .filter((entry) => entry.isIntersecting)
+            .sort(
+              (a, b) =>
+                a.boundingClientRect.top - b.boundingClientRect.top ||
+                a.boundingClientRect.left - b.boundingClientRect.left
+            )
+            .forEach((entry) => {
+              loadDeferredImage(entry.target);
+              imageObserver.unobserve(entry.target);
+            });
         },
-        { rootMargin: "150px 0px" }
+        { rootMargin: "300px 0px" }
       );
 
       deferredImages.forEach((image) => imageObserver.observe(image));
@@ -178,48 +186,39 @@
     }
   };
 
-  const scheduleDeferredImageLoading = () => {
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(startDeferredImageLoading, { timeout: 1500 });
-    } else {
-      window.setTimeout(startDeferredImageLoading, 400);
-    }
+  startDeferredImageLoading();
+
+  const updateActiveNavigation = () => {
+    if (!sections.length || !navLinks.length) return;
+
+    const headerHeight = header?.getBoundingClientRect().height ?? 0;
+    const marker = window.scrollY + headerHeight + window.innerHeight * 0.28;
+    let currentSection = sections[0];
+
+    sections.forEach((section) => {
+      if (section.offsetTop <= marker) currentSection = section;
+    });
+
+    navLinks.forEach((link) => {
+      const isCurrent = link.getAttribute("href") === `#${currentSection.id}`;
+      if (isCurrent) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
   };
 
-  if (deferredImages.length) {
-    const opensBelowHero = window.location.hash && window.location.hash !== "#anasayfa";
-    if (opensBelowHero) {
-      scheduleDeferredImageLoading();
-    } else {
-      const handleFirstMeaningfulScroll = () => {
-        if (window.scrollY <= 8) return;
-        window.removeEventListener("scroll", handleFirstMeaningfulScroll);
-        scheduleDeferredImageLoading();
-      };
-      window.addEventListener("scroll", handleFirstMeaningfulScroll, { passive: true });
-    }
-  }
+  let navigationFrame = 0;
+  const scheduleNavigationUpdate = () => {
+    if (navigationFrame) return;
+    navigationFrame = window.requestAnimationFrame(() => {
+      navigationFrame = 0;
+      updateActiveNavigation();
+    });
+  };
 
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        if (!visibleEntry) return;
-
-        navLinks.forEach((link) => {
-          const isCurrent = link.getAttribute("href") === `#${visibleEntry.target.id}`;
-          if (isCurrent) link.setAttribute("aria-current", "location");
-          else link.removeAttribute("aria-current");
-        });
-      },
-      { rootMargin: "-30% 0px -55%", threshold: [0.05, 0.25, 0.55] }
-    );
-
-    sections.forEach((section) => observer.observe(section));
-  }
+  updateActiveNavigation();
+  window.addEventListener("scroll", scheduleNavigationUpdate, { passive: true });
+  window.addEventListener("resize", scheduleNavigationUpdate);
+  window.addEventListener("load", updateActiveNavigation);
 
   const year = document.querySelector("[data-year]");
   if (year) year.textContent = String(new Date().getFullYear());

@@ -24,7 +24,7 @@
 
         <div class="product-detail__grid">
           <article class="product-detail__intro">
-            {% if product.image %}
+            {% if site.show_product_images and product.image %}
               <figure class="product-detail__visual">
                 <img
                   src="{% if product.image_960 %}{{ product.image_960.url }}{% else %}{{ product.image.url }}{% endif %}"
@@ -41,7 +41,7 @@
             <p class="product-detail__description">
               {{ product.description|default:"Bu ürünün açıklaması yakında eklenecek." }}
             </p>
-            <p class="product-detail__price"><strong>{{ product.price|floatformat:2 }}</strong> <span>₺</span></p>
+            {% if product.price %}<p class="product-detail__price"><strong>{{ product.price|floatformat:2 }}</strong> <span>₺</span></p>{% endif %}
             <a class="button button--primary" href="{% url 'restaurant:home' %}#menu">Tüm menüyü gör</a>
           </article>
 

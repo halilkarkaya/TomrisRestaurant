@@ -125,9 +125,9 @@
                 <ul class="menu-list">
                   {% for product in category.visible_products %}
                     <li class="menu-item">
-                      <a class="menu-item__link{% if product.image %} menu-item__link--with-image{% endif %}" href="{{ product.get_absolute_url }}" aria-label="{{ product.name }} detaylarını incele">
-                        {% if product.image %}
-                          <span class="menu-item__image">
+                      <a class="menu-item__link{% if site.show_product_images and product.image %} menu-item__link--with-image{% endif %}" href="{{ product.get_absolute_url }}" aria-label="{{ product.name }} detaylarını incele">
+                        {% if site.show_product_images and product.image %}
+                          <span class="menu-item__image" data-image-key="{{ product.image.name|cut:'products/'|cut:'.webp' }}">
                             <img
                               data-deferred-src="{% if product.image_480 %}{{ product.image_480.url }}{% else %}{{ product.image.url }}{% endif %}"
                               {% if product.image_480 %}data-deferred-srcset="{{ product.image_480.url }} 1x, {% if product.image_960 %}{{ product.image_960.url }}{% else %}{{ product.image.url }}{% endif %} 2x"{% endif %}
@@ -143,7 +143,7 @@
                         <div class="menu-item__heading">
                           <h4>{{ product.name }}</h4>
                           <span class="menu-item__leader" aria-hidden="true"></span>
-                          <span class="menu-item__price">{{ product.price|floatformat:0 }} ₺</span>
+                          {% if product.price %}<span class="menu-item__price">{{ product.price|floatformat:0 }} ₺</span>{% endif %}
                         </div>
                         {% if product.description %}<p>{{ product.description }}</p>{% endif %}
                         <span class="menu-item__detail">Detayları gör <span aria-hidden="true">↗</span></span>

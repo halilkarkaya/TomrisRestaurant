@@ -216,7 +216,7 @@ body.nav-open .site-header {
 .brand__name {
   font-family: var(--display);
   font-size: 1.55rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.04em;
 }
 
@@ -840,10 +840,15 @@ blockquote cite {
 
 .menu-list {
   display: grid;
-  gap: 2rem;
+  gap: 2.35rem;
   margin: 0;
   padding: 2rem 0 0;
   list-style: none;
+}
+
+.menu-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 10rem;
 }
 
 .menu-item__link {
@@ -856,7 +861,7 @@ blockquote cite {
 
 .menu-item__link--with-image {
   display: grid;
-  grid-template-columns: clamp(6.5rem, 9vw, 7.75rem) minmax(0, 1fr);
+  grid-template-columns: clamp(9.5rem, 12vw, 11.5rem) minmax(0, 1fr);
   grid-template-rows: auto auto 1fr;
   column-gap: clamp(1rem, 2vw, 1.4rem);
   align-items: start;
@@ -894,8 +899,28 @@ blockquote cite {
   object-fit: cover;
   filter: saturate(0.88) contrast(1.03);
   opacity: 1;
+  transform: scale(var(--food-zoom, 1.06));
   transition: opacity 180ms ease, transform 420ms ease, filter 220ms ease;
 }
+
+/* Tabağın çevresinde fazla boşluk bulunan çekimleri porsiyona yaklaştır. */
+.menu-item__image[data-image-key="izgara-tavuklu-bowl"] { --food-zoom: 1.16; }
+.menu-item__image[data-image-key="atesli-bowl"] { --food-zoom: 1.24; }
+.menu-item__image[data-image-key="turk-isi-bowl"] { --food-zoom: 1.13; }
+.menu-item__image[data-image-key="vegan-bowl"] { --food-zoom: 1.18; }
+.menu-item__image[data-image-key="vejeteryan-bowl"] { --food-zoom: 1.12; }
+.menu-item__image[data-image-key="korili-tavuklu-penne"] { --food-zoom: 1.42; }
+.menu-item__image[data-image-key="aci-soslu-tavuklu-penne"] { --food-zoom: 1.22; }
+.menu-item__image[data-image-key="salcali-yogurtlu-penne"] { --food-zoom: 1.34; }
+.menu-item__image[data-image-key="pesto-soslu-penne"] { --food-zoom: 1.34; }
+.menu-item__image[data-image-key="ton-balikli-salata"] { --food-zoom: 1.22; }
+.menu-item__image[data-image-key="yesil-mercimekli-salata"] { --food-zoom: 1.25; }
+.menu-item__image[data-image-key="coban-salata"] { --food-zoom: 1.02; }
+.menu-item__image[data-image-key="sucuklu-tost"] { --food-zoom: 1.18; }
+.menu-item__image[data-image-key="sucuklu-kasarli-tost"] { --food-zoom: 1.28; }
+.menu-item__image[data-image-key="sucuklu-yumurtali-tost"] { --food-zoom: 1.02; }
+.menu-item__image[data-image-key="pesto-soslu-avokadolu-tost"] { --food-zoom: 1.24; }
+.menu-item__image[data-image-key="arabiata-tavuklu-pilav"] { --food-zoom: 1.02; }
 
 .menu-item__image img:not([src]) {
   opacity: 0;
@@ -904,7 +929,7 @@ blockquote cite {
 .menu-item__link:hover .menu-item__image img,
 .menu-item__link:focus-visible .menu-item__image img {
   filter: saturate(1) contrast(1.03) brightness(1.06);
-  transform: scale(1.035);
+  transform: scale(var(--food-zoom, 1.06));
 }
 
 .menu-item__link:hover::before,
@@ -1900,7 +1925,7 @@ main:focus,
   }
 
   .menu-item__link--with-image {
-    grid-template-columns: 5.5rem minmax(0, 1fr);
+    grid-template-columns: clamp(7.25rem, 32vw, 8.5rem) minmax(0, 1fr);
     column-gap: 0.9rem;
   }
 

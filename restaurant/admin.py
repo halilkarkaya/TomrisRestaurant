@@ -332,7 +332,16 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ),
         (
             "Menü bölümü",
-            {"fields": ("menu_kicker", "menu_title", "menu_summary", "menu_note")},
+            {
+                "description": "Aşağıdaki düğmeyle bütün ürün fotoğraflarını sitede açıp kapatabilirsiniz.",
+                "fields": (
+                    "show_product_images",
+                    "menu_kicker",
+                    "menu_title",
+                    "menu_summary",
+                    "menu_note",
+                ),
+            },
         ),
         (
             "İletişim, adres ve harita",

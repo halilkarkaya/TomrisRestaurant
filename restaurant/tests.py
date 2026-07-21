@@ -1,10 +1,14 @@
+import os
 from decimal import Decimal
 from io import BytesIO
 from tempfile import mkdtemp
+from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from PIL import Image
@@ -12,11 +16,81 @@ from PIL import Image
 from .models import MenuCategory, Product, SiteSettings
 
 
+class SetTomrisAdminCommandTests(TestCase):
+    def test_creates_tomris_and_deletes_other_admins(self):
+        User = get_user_model()
+        User.objects.create_superuser(
+            username="old-superuser",
+            email="old@example.com",
+            password="old-password-123",
+        )
+        User.objects.create_user(
+            username="old-staff",
+            password="old-password-123",
+            is_staff=True,
+        )
+        regular_user = User.objects.create_user(
+            username="customer",
+            password="customer-password-123",
+        )
+
+        os.environ["TEST_TOMRIS_ADMIN_PASSWORD"] = "new-secure-password-456"
+        try:
+            call_command(
+                "set_tomris_admin",
+                password_env="TEST_TOMRIS_ADMIN_PASSWORD",
+                verbosity=0,
+            )
+        finally:
+            os.environ.pop("TEST_TOMRIS_ADMIN_PASSWORD", None)
+
+        tomris = User.objects.get(username="tomris")
+        self.assertTrue(tomris.is_active)
+        self.assertTrue(tomris.is_staff)
+        self.assertTrue(tomris.is_superuser)
+        self.assertTrue(tomris.check_password("new-secure-password-456"))
+        self.assertEqual(
+            set(User.objects.filter(is_staff=True).values_list("username", flat=True)),
+            {"tomris"},
+        )
+        self.assertTrue(User.objects.filter(pk=regular_user.pk).exists())
+
+    def test_password_mismatch_does_not_change_users(self):
+        User = get_user_model()
+        old_admin = User.objects.create_superuser(
+            username="old-superuser",
+            email="old@example.com",
+            password="old-password-123",
+        )
+
+        with mock.patch(
+            "restaurant.management.commands.set_tomris_admin.getpass.getpass",
+            side_effect=["first-secure-password-123", "different-password-456"],
+        ):
+            with self.assertRaises(CommandError):
+                call_command(
+                    "set_tomris_admin",
+                    password_env="MISSING_TEST_PASSWORD",
+                    verbosity=0,
+                )
+
+        self.assertTrue(User.objects.filter(pk=old_admin.pk).exists())
+        self.assertFalse(User.objects.filter(username="tomris").exists())
+
+
 class HomePageTests(TestCase):
     def setUp(self):
         cache.clear()
         Product.objects.all().delete()
-        self.soup_category = MenuCategory.objects.get(slug="soups")
+        self.soup_category, _ = MenuCategory.objects.get_or_create(
+            slug="soups",
+            defaults={
+                "name": "Çorbalar",
+                "eyebrow": "Günlük sıcak",
+                "sort_order": 10,
+                "is_active": True,
+            },
+        )
         self.visible_product = Product.objects.create(
             name="Test Çorbası",
             category=self.soup_category,
@@ -57,7 +131,7 @@ class HomePageTests(TestCase):
     def test_home_page_has_all_menu_category_anchors(self):
         response = self.client.get(reverse("restaurant:home"))
 
-        for anchor in ("soups", "mains", "desserts", "drinks"):
+        for anchor in ("bowl", "makarna", "salata", "fastfood", "pilav"):
             self.assertContains(response, f'id="{anchor}"')
 
     def test_site_settings_are_rendered_on_home_page(self):
@@ -106,6 +180,37 @@ class HomePageTests(TestCase):
         self.assertIn("test-corbasi", self.visible_product.get_absolute_url())
         self.assertContains(response, "data-deferred-src")
         self.assertContains(response, "fetchpriority=\"low\"")
+
+    def test_product_images_can_be_hidden_globally_from_site_settings(self):
+        self.visible_product.image = "products/test.jpg"
+        self.visible_product.save(update_fields=("image",))
+        settings = SiteSettings.load()
+        settings.show_product_images = False
+        settings.save(update_fields=("show_product_images",))
+        cache.clear()
+
+        home_response = self.client.get(reverse("restaurant:home"))
+        detail_response = self.client.get(self.visible_product.get_absolute_url())
+
+        self.assertNotContains(home_response, "products/test.jpg")
+        self.assertNotContains(home_response, "menu-item__image")
+        self.assertNotContains(detail_response, "product-detail__visual")
+
+    def test_changing_product_image_setting_clears_public_page_cache(self):
+        self.visible_product.image = "products/test.jpg"
+        self.visible_product.save(update_fields=("image",))
+        settings = SiteSettings.load()
+        settings.show_product_images = False
+        settings.save(update_fields=("show_product_images",))
+
+        hidden_response = self.client.get(reverse("restaurant:home"))
+        self.assertNotContains(hidden_response, "menu-item__image")
+
+        settings.show_product_images = True
+        settings.save(update_fields=("show_product_images",))
+        visible_response = self.client.get(reverse("restaurant:home"))
+
+        self.assertContains(visible_response, "menu-item__image")
 
     def test_active_product_detail_page_shows_product_information(self):
         response = self.client.get(self.visible_product.get_absolute_url())
@@ -195,7 +300,7 @@ class ImageShrinkTests(TestCase):
     def _create_product(self, upload):
         return Product.objects.create(
             name="Foto Testi",
-            category=MenuCategory.objects.get(slug="soups"),
+            category=MenuCategory.objects.get(slug="bowl"),
             price=Decimal("100.00"),
             image=upload,
         )
@@ -304,7 +409,7 @@ class PublicPageCacheTests(TestCase):
         Product.objects.all().delete()
         self.product = Product.objects.create(
             name="Cache Çorbası",
-            category=MenuCategory.objects.get(slug="soups"),
+            category=MenuCategory.objects.get(slug="bowl"),
             description="İlk açıklama",
             price=Decimal("100.00"),
             is_active=True,
@@ -387,7 +492,7 @@ class ProductAdminTests(TestCase):
         self.assertContains(response, "1. sıra (en üstte)")
 
     def test_saving_a_plain_position_reorders_products(self):
-        products = list(Product.objects.filter(category__slug="soups").order_by("sort_order"))
+        products = list(Product.objects.filter(category__slug="bowl").order_by("sort_order"))
         moved_product = products[-1]
 
         response = self.client.post(
@@ -421,3 +526,4 @@ class ProductAdminTests(TestCase):
         self.assertContains(category_response, "Menü kategorileri")
         self.assertEqual(site_response.status_code, 200)
         self.assertContains(site_response, "Marka ve ana sayfa görseli")
+        self.assertContains(site_response, "Ürün görsellerini sitede göster")

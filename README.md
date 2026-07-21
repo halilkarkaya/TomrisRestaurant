@@ -22,6 +22,21 @@ D:\anaconda\python.exe manage.py runserver
 - Site: `http://127.0.0.1:8000/`
 - Yönetim paneli: `http://127.0.0.1:8000/admin/`
 
+## Tek yönetici hesabı
+
+Sunucuda yalnızca `tomris` yöneticisini bırakmak ve bu hesabın şifresini
+güvenli (ekranda görünmeyen) istemden değiştirmek için:
+
+```bash
+cd /var/www/tomris
+sudo -u www-data ./venv/bin/python manage.py set_tomris_admin
+```
+
+Komut `tomris` hesabını oluşturur veya günceller, diğer `staff` ve `superuser`
+hesaplarını siler. Normal site kullanıcılarına dokunmaz. Otomasyon için şifre
+komut satırına yazılmak yerine `TOMRIS_ADMIN_PASSWORD` ortam değişkeninden de
+verilebilir.
+
 ## Ürün yönetimi
 
 Yönetim panelindeki **Ürünler** bölümünden:

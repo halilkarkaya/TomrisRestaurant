@@ -2,6 +2,7 @@ from io import BytesIO
 from pathlib import PurePosixPath
 
 from django.core.files.base import ContentFile
+from django.core.cache import cache
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -312,10 +313,15 @@ class SiteSettings(models.Model):
         max_length=240,
         default="Klasik tarifler, yalın sunumlar ve sofranın tanıdık lezzetleri.",
     )
+    show_product_images = models.BooleanField(
+        "Ürün görsellerini sitede göster",
+        default=True,
+        help_text="Kapattığınızda menü ve ürün detay sayfalarındaki yemek fotoğrafları gizlenir.",
+    )
     menu_note = models.CharField(
         "Menü alt notu",
         max_length=240,
-        default="Ürün içerikleri ve fiyatlar işletme tarafından güncellenebilir.",
+        default="Ürün görselleri temsilidir. Ürün içerikleri ve fiyatlar işletme tarafından güncellenebilir.",
     )
     contact_kicker = models.CharField("İletişim üst başlığı", max_length=100, default="Bizi ziyaret edin")
     contact_title = models.CharField(
@@ -403,6 +409,7 @@ class SiteSettings(models.Model):
                 convert_to_webp=True,
             )
         super().save(*args, **kwargs)
+        cache.clear()
 
     @classmethod
     def load(cls):
